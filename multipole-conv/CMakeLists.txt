@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.18.0)
+
+project( multipole-conv VERSION 0.5.0
+  DESCRIPTION "A tool to convert between spherical mutlipoles and multipoles"
+  LANGUAGES CXX )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # necessary for the language server (e.g.
+				      # to recognise the include libraries)
+add_subdirectory(src)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
