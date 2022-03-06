@@ -8,5 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # necessary for the language server (e.g.
 				      # to recognise the include libraries)
 add_subdirectory(src)
 
+add_executable(multipole-conv src/multipole-conv.cpp)
+target_link_libraries(multipole-conv PRIVATE math options square_matrix)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
