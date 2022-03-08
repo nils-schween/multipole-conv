@@ -18,7 +18,7 @@ struct is_complex<std::complex<T>> : public std::true_type {};
 
 template <typename DataTypeA, typename DataTypeB>
 struct MatrixReturn {
-  // None of the types is complex or both. Both types can be the return type
+  // None of the types is complex
   typedef DataTypeA type;
 };
 
@@ -32,6 +32,12 @@ struct MatrixReturn<std::complex<DataTypeA>, DataTypeB> {
 template <typename DataTypeA, typename DataTypeB>
 struct MatrixReturn<DataTypeA, std::complex<DataTypeB>> {
   typedef std::complex<DataTypeB> type;
+};
+
+// Specialisation both are complex
+template <typename DataTypeA, typename DataTypeB>
+struct MatrixReturn<std::complex<DataTypeA>, std::complex<DataTypeB>> {
+  typedef std::complex<DataTypeA> type;
 };
 
 // Square matrix
@@ -139,6 +145,8 @@ SquareMatrix<typename MatrixReturn<T, S>::type> operator/(
   return res;
 }
 // Scalar division from left is from a mathematical perspective strange
+
+// MatrixMatrix mult
 template <typename T, typename S>
 SquareMatrix<typename MatrixReturn<T, S>::type> operator*(
     const SquareMatrix<T>& matA, const SquareMatrix<S>& matB) {
