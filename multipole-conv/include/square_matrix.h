@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <vector>
 
+namespace multipole_conv {
 // Type traits
 template <typename T>
 struct is_complex : public std::false_type {};
@@ -81,7 +82,8 @@ void SquareMatrix<T>::print() {
   for (std::size_t i = 0; i < matrix_dim; ++i) {
     std::cout << std::left;
     for (std::size_t j = 0; j < matrix_dim; ++j) {
-      std::cout << std::setw(8) << matrix_elements[i * matrix_dim + j] << " ";
+      std::cout << std::setw(8) << std::setprecision(5)
+                << matrix_elements[i * matrix_dim + j] << " ";
     }
     std::cout << "\n";
   }
@@ -160,5 +162,5 @@ SquareMatrix<typename MatrixReturn<T, S>::type> operator*(
   }
   return res;
 }
-
+}  // namespace mutlipole_conv
 #endif
