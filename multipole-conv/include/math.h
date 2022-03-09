@@ -1,6 +1,7 @@
 #ifndef MATH_H
 #define MATH_H
-
-unsigned int binomial(unsigned int n, unsigned int k);
-
+namespace multipole_conv {
+double binomial(unsigned int n, unsigned int k);
+double factorial(unsigned int n);
+}
 #endif
