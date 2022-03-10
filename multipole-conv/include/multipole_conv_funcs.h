@@ -15,17 +15,23 @@ SquareMatrix<double> norms_complex_sph(std::size_t degree);
 
 // Compute the transformation matrix from the real spherical harmonics to the
 // complex spherical harmonics
-SquareMatrix<std::complex<double>> transform_real_sph_to_complex(
+SquareMatrix<std::complex<double>> real_sph_to_complex(
     std::size_t degree);
 
 // Compute the transformation matrix from the complex spherical harmonics to the
 // real spherical harmonics
-SquareMatrix<std::complex<double>> transform_complex_sph_to_real(
+SquareMatrix<std::complex<double>> complex_sph_to_real(
     std::size_t degree);
 
-// Computes the common coefficient in front of the multipole basis functions.
+// Computes the coefficient in the basis transformation from the real spherical
+// harmonics without normalisation to multipole basis functions.
 // p_index = 0 belongs to the basis functions M_0qr
 // p_index = 1 belongs to the basis functions M_1qr
-double coefficient(std::size_t limit, std::size_t index, bool p);
+double coefficient(std::size_t degree,
+		   std::size_t order, bool p, std::size_t sum_start);
+
+// Compute the basis transformation between the real spherical harmonics without
+// normalisation and multipole basis function
+SquareMatrix<double> basis_transformation(std::size_t degree);
 }  // namespace multipole_conv
 #endif

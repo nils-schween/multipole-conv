@@ -74,21 +74,56 @@ multipole_conv::complex_sph_to_real(size_t degree) {
   return transformation_matrix;
 }
 
-double multipole_conv::coefficient(std::size_t order, std::size_t k,
-                                   bool p_index) {
-  std::size_t limit = 0;
-  if (order % 2 == 0 && p_index)  // m even, p = 1
-    limit = order / 2 - 1;
-  else if (order % 2 == 0 && !p_index)  // m even, p = 0
-    limit = order / 2;
-  else  // m odd, p = 0, p = 1
-    limit = (order - 1) / 2;
-
-  double res = 0.;
-  unsigned int p = static_cast<unsigned int>(p_index);
-  for (std::size_t i = k; i <= limit; ++i) {
-    res += multipole_conv::binomial(order, 2 * i + p) *
-           multipole_conv::binomial(i, k);
+double multipole_conv::coefficient(size_t degree, size_t order, bool p_index,
+                                   size_t sum_start) {
+  double sign = 1.;  // (-1)^(f(order))
+  size_t sum_limit = 0;
+  if (order % 2 == 0 && p_index) {  // m even, p = 1
+    sum_limit = order / 2 - 1;
+    sign = std::pow(-1., order / 2 + 1);
+  } else if (order % 2 == 0 && !p_index) {  // m even, p = 0
+    sum_limit = order / 2;
+    sign = std::pow(-1., sum_limit);
+  } else {  // m odd, p = 0, p = 1
+    sum_limit = (order - 1) / 2;
+    sign = std::pow(-1., (order + 1) / 2);
   }
+
+  unsigned int p = static_cast<unsigned int>(p_index);
+  double res = 0.;
+  for (size_t i = sum_start; i <= sum_limit; ++i) {
+    res += multipole_conv::binomial(order, 2 * i + p) *
+           multipole_conv::binomial(i, sum_start);
+  }
+  double factor = 1 / factorial(degree - order);
+  res *= sign * factor;
   return res;
+}
+
+multipole_conv::SquareMatrix<double> multipole_conv::basis_transformation(
+    size_t degree) {
+  // NOTE: The implementation of of this function strongly depends on the chosen
+  // ordering of the real spherical harmonics and the multipole basis functions
+  SquareMatrix<double> basis_transformation{2 * degree + 1};
+  for (size_t order = degree, i = 0; i < degree; ++i, --order) {
+    unsigned int p_upper_part =
+        (order % 2 ? 1 : 0);  // p_index for the s = 0 case
+    unsigned int p_lower_part =
+        (order % 2 ? 0 : 1);  // p_index for the s = 1 case
+    for (size_t k = 0; k <= std::floor(order / 2); ++k) {
+      // Upper part (s = 0)
+      basis_transformation(
+          i, p_upper_part * (degree + 1) + order - (2 * k + p_upper_part)) =
+          coefficient(degree, order, p_upper_part, k);
+      // Lower part (s = 1)
+      if (order % 2 == 0 && k == order / 2)
+        continue;  // the sum for even m ends at k = order/2 - 1
+      basis_transformation(2 * degree - i, p_lower_part * (degree + 1) + order -
+                                               (2 * k + p_lower_part)) =
+          coefficient(degree, order, p_lower_part, k);
+    }
+    // m = 0 and s = 0
+    basis_transformation(degree, 0) = coefficient(degree, 0, 0, 0);
+  }
+  return basis_transformation;
 }
