@@ -7,12 +7,13 @@
 #include "math.h"
 #include "square_matrix.h"
 
+using std::size_t;
+
 multipole_conv::SquareMatrix<double> multipole_conv::norms_real_sph(
-    std::size_t degree) {
+    size_t degree) {
   SquareMatrix<double> res{2 * degree + 1};
   double factor = {std::sqrt((2 * degree + 1) / (2 * pi))};
-  for (std::size_t i = 0; i < degree; ++i) {
-    std::size_t order = degree - i;
+  for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     double norm_degree_order =
         factor *
         std::sqrt((factorial(degree - order) / factorial(degree + order)));
@@ -24,11 +25,10 @@ multipole_conv::SquareMatrix<double> multipole_conv::norms_real_sph(
 }
 
 multipole_conv::SquareMatrix<double> multipole_conv::norms_complex_sph(
-    std::size_t degree) {
+    size_t degree) {
   SquareMatrix<double> res{2 * degree + 1};
   double factor = {std::sqrt((2 * degree + 1) / (4 * pi))};
-  for (std::size_t i = 0; i < degree; ++i) {
-    std::size_t order = degree - i;
+  for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     // positive order (m > 0)
     res(i, i) =
         factor *
@@ -44,34 +44,33 @@ multipole_conv::SquareMatrix<double> multipole_conv::norms_complex_sph(
 }
 
 multipole_conv::SquareMatrix<std::complex<double>>
-multipole_conv::transform_real_sph_to_complex(std::size_t degree) {
+multipole_conv::real_sph_to_complex(size_t degree) {
   using namespace std::complex_literals;
   SquareMatrix<std::complex<double>> transformation_matrix{2 * degree + 1};
   double factor = 1 / std::sqrt(2);
-  for (std::size_t i = 0; i < degree; ++i) {
-    std::size_t order = degree - i;
+  for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     // (-1)^order term
     double sign = (order % 2) ? -1 : 1;
-    // Upper part of the transformation matrix
+    // Upper part of the transformation matrix (s = 0)
     transformation_matrix(i, i) = factor;
     transformation_matrix(i, 2 * degree - i) = factor * 1.i;
-    // Lower part of the transformation matrix
+    // Lower part of the transformation matrix (s = 1)
     transformation_matrix(2 * degree - i, i) = sign * factor;
     transformation_matrix(2 * degree - i, 2 * degree - i) =
         -sign * factor * 1.i;
   }
-  // m = 0 term
+  // m = 0 and s = 0 term
   transformation_matrix(degree, degree) = 1.;
   return transformation_matrix;
 }
 
 multipole_conv::SquareMatrix<std::complex<double>>
-multipole_conv::transform_complex_sph_to_real(std::size_t degree) {
+multipole_conv::complex_sph_to_real(size_t degree) {
   // The transformation between the real and the complex spherical harmonics is
   // a unitary transformation, i.e its inverse is the transpose conjugate of the
   // corresponding transformation matrix
   SquareMatrix<std::complex<double>> transformation_matrix =
-      transform_real_sph_to_complex(degree).transpose().conjugate();
+      real_sph_to_complex(degree).transpose().conjugate();
   return transformation_matrix;
 }
 
