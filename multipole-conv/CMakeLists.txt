@@ -7,9 +7,10 @@ project( multipole-conv VERSION 0.5.0
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # necessary for the language server (e.g.
 				      # to recognise the include libraries)
 add_subdirectory(src)
-add_executable(multipole-conv src/multipole-conv.cpp)
-target_link_libraries(multipole-conv PRIVATE math multipole_conv_funcs)
 
-target_include_directories(multipole-conv PRIVATE include/)
+add_executable(multipole-conv src/multipole-conv.cpp)
+ # inherits the include/ directory from multipole_conv_funcs
+target_link_libraries(multipole-conv PRIVATE multipole_conv_funcs)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
