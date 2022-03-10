@@ -127,3 +127,27 @@ multipole_conv::SquareMatrix<double> multipole_conv::basis_transformation(
   }
   return basis_transformation;
 }
+
+multipole_conv::SquareMatrix<double> multipole_conv::permutation(size_t degree) {
+  SquareMatrix<double> permutation_mat(2 * degree + 1);
+  // upper part: r^l Y_ll0, r^l Y_ll-20 ...
+  // lower part: r^l Y_ll1, r^l Y_ll-21 ...
+  size_t num_permutations_l = std::floor(degree / 2);
+  permutation_mat(0, 0) = 1.;                    // first row upper part (s = 0)
+  permutation_mat(degree + 1, 2 * degree) = 1.;  // firsr row lower part (s = 1)
+  for (size_t i = 1; i <= num_permutations_l; ++i) {
+    permutation_mat(i, 2 * i) = 1.;                        // upper part
+    permutation_mat(degree + 1 + i, 2 * degree - 2 * i) = 1.;  // lower part
+  }
+  // upper part: r^l Y_l-1l-10, r^l Y_l-1l-30 ...
+  // lower part: r^l Y_l-1l-11, r^l Y_l-1l-31 ...
+  size_t num_permutations_l_minus_one = std::floor((degree - 1) / 2);
+  permutation_mat(num_permutations_l + 1, 1) = 1.;
+  permutation_mat(degree + 1 + num_permutations_l + 1, 2 * degree - 1) = 1.;
+  for (size_t i = 1; i <= num_permutations_l_minus_one; ++i) {
+    permutation_mat(num_permutations_l + 1 + i, 2 * i + 2) = 1.;
+    permutation_mat(degree + 1 + num_permutations_l + 1 + i,
+                    2 * degree - 1 - 2 * i) = 1.;
+  }
+  return permutation_mat;
+}

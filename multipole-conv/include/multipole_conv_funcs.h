@@ -30,8 +30,13 @@ SquareMatrix<std::complex<double>> complex_sph_to_real(
 double coefficient(std::size_t degree,
 		   std::size_t order, bool p, std::size_t sum_start);
 
-// Compute the basis transformation between the real spherical harmonics without
+// Computes the basis transformation between the real spherical harmonics without
 // normalisation and multipole basis function
 SquareMatrix<double> basis_transformation(std::size_t degree);
+
+// Create a permutation matrix which, when multiplied with the basis
+// transformation matrix, results in a matrix with four blocks of triangular
+// matrices
+SquareMatrix<double> permutation(std::size_t degree);
 }  // namespace multipole_conv
 #endif
