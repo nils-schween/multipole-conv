@@ -82,7 +82,7 @@ void SquareMatrix<T>::print() {
   for (std::size_t i = 0; i < matrix_dim; ++i) {
     std::cout << std::left;
     for (std::size_t j = 0; j < matrix_dim; ++j) {
-      std::cout << std::setw(8) << std::setprecision(5)
+      std::cout << std::setw(9) << std::setprecision(3)
                 << matrix_elements[i * matrix_dim + j] << " ";
     }
     std::cout << "\n";
@@ -154,7 +154,7 @@ SquareMatrix<typename MatrixReturn<T, S>::type> operator*(
     const SquareMatrix<T>& matA, const SquareMatrix<S>& matB) {
   SquareMatrix<typename MatrixReturn<T, S>::type> res(matA.dim());
   for (std::size_t i = 0; i < matA.dim(); ++i) {
-    for (std::size_t j = 0; j < matA.dim(); ++j) {
+    for (std::size_t j = 0; j < matB.dim(); ++j) {
       for (std::size_t k = 0; k < matB.dim(); ++k) {
         res(i, j) += matA(i, k) * matB(k, j);
       }
