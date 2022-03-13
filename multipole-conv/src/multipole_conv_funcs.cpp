@@ -163,3 +163,40 @@ multipole_conv::SquareMatrix<double> multipole_conv::permutation(
   }
   return permutation_mat;
 }
+
+multipole_conv::SquareMatrix<double>
+multipole_conv::invert_basis_transformation(const SquareMatrix<double>
+					    &trans_mat) {
+  SquareMatrix<double> inverse (trans_mat.dim());
+  size_t degree = (trans_mat.dim() - 1)/2;
+  SquareMatrix<double> preconditioned = permutation(degree) * trans_mat *
+  permutation((degree)).transpose();
+  // Since the preconditioned transformation matrix has a different structure
+  // for even and odd degrees, we have to distinguish these cases. This leads to
+  // duplication of code. TODO: improve when you have got time
+  if (degree % 2) { 		// degree odd
+
+  } else {			// degree even
+    // s = 0 and m even
+    // size triangular matrix (degree/2 + 1)/2 x (degree/2 + 1)/2
+    // rhs b = unit vectors, e_1 ... e_degree/2
+    for (size_t i = 0 ; i < degree/2 + 1; ++i) { // loop over the rhs'
+      // b_k = delta_ik
+      inverse(0, i) = (i == (degree/2)) ? 1/preconditioned(degree/2, 0) : 0;
+      // int was necessary because I could not decrement size_t through zero
+      for(int k = degree/2 - 1; k >= 0; --k) {
+	double sum = 0.; // sum_j mat_kj x_j
+	for(size_t j = 0; j < degree/2 - k; ++j)
+	  sum += preconditioned(k, j) * inverse(j,i);
+	// std::cout << k << "\n";
+	// std::cout << preconditioned(degree/2 - k, degree/2 - k)  << "\n";
+	// std::cout << preconditioned(2,2)  << "\n";
+
+	 // b_k - sum_j mat_kj x_j
+	inverse(degree/2 - k, i) = ((k == i ? 1 : 0) -
+  sum)/preconditioned(k, degree/2 - k);
+      }
+    }
+  }
+  return inverse;
+}
