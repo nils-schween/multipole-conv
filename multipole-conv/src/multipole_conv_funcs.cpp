@@ -138,10 +138,9 @@ multipole_conv::SquareMatrix<double> multipole_conv::permutation(
   permutation_mat(0, 0) = 1.;                    // first row upper part (s = 0)
   permutation_mat(degree + 1, 2 * degree) = 1.;  // firsr row lower part (s = 1)
   for (size_t i = 1; i <= num_permutations_l; ++i) {
-    permutation_mat(i, 2 * i) = 1.;                            // upper part
+    permutation_mat(i, 2 * i) = 1.;  // upper part
     // in the lower part (s = 1) Y_l01 does not exist
-    if ( degree % 2 == 0 && i == num_permutations_l)
-      continue;
+    if (degree % 2 == 0 && i == num_permutations_l) continue;
     permutation_mat(degree + 1 + i, 2 * degree - 2 * i) = 1.;  // lower part
   }
   // l-1
@@ -154,48 +153,91 @@ multipole_conv::SquareMatrix<double> multipole_conv::permutation(
   permutation_mat(degree + 1 + num_permutations_l_minus_one + 1,
                   2 * degree - 1) = 1.;
   for (size_t i = 1; i <= num_permutations_l_minus_one; ++i) {
-    permutation_mat(num_permutations_l + 1 + i, 2 * i + 1) = 1.; // upper part
+    permutation_mat(num_permutations_l + 1 + i, 2 * i + 1) = 1.;  // upper part
     // in the lower part (s = 1) Y_l-101 does not exist
-    if ( degree % 2 == 1 && i == num_permutations_l_minus_one)
-      continue;
-    permutation_mat(degree + 1 + num_permutations_l_minus_one + 1 + i, 
-                    2 * degree - 1 - 2 * i) = 1.; // lower part
+    if (degree % 2 == 1 && i == num_permutations_l_minus_one) continue;
+    permutation_mat(degree + 1 + num_permutations_l_minus_one + 1 + i,
+                    2 * degree - 1 - 2 * i) = 1.;  // lower part
   }
   return permutation_mat;
 }
 
 multipole_conv::SquareMatrix<double>
-multipole_conv::invert_basis_transformation(const SquareMatrix<double>
-					    &trans_mat) {
-  SquareMatrix<double> inverse (trans_mat.dim());
-  size_t degree = (trans_mat.dim() - 1)/2;
-  SquareMatrix<double> preconditioned = permutation(degree) * trans_mat *
-  permutation((degree)).transpose();
+multipole_conv::invert_basis_transformation(
+    const SquareMatrix<double> &trans_mat) {
+  SquareMatrix<double> inverse(trans_mat.dim());
+  size_t degree = (trans_mat.dim() - 1) / 2;
+  SquareMatrix<double> preconditioned =
+      permutation(degree) * trans_mat * permutation((degree)).transpose();
   // Since the preconditioned transformation matrix has a different structure
   // for even and odd degrees, we have to distinguish these cases. This leads to
   // duplication of code. TODO: improve when you have got time
-  if (degree % 2) { 		// degree odd
+  if (degree % 2) {  // degree odd
 
-  } else {			// degree even
-    // s = 0 and m even
-    // size triangular matrix (degree/2 + 1)/2 x (degree/2 + 1)/2
+  } else {  // degree even
+    // s = 0 and m even (l part
+    // size triangular matrix (degree/2 + 1)^2
     // rhs b = unit vectors, e_1 ... e_degree/2
-    for (size_t i = 0 ; i < degree/2 + 1; ++i) { // loop over the rhs'
+    // matrix structure:
+    // * * *
+    // * *
+    // *
+    for (size_t i = 0; i < degree / 2 + 1; ++i) {  // loop over the rhs'
       // b_k = delta_ik
-      inverse(0, i) = (i == (degree/2)) ? 1/preconditioned(degree/2, 0) : 0;
+      inverse(0, i) =
+          (i == (degree / 2)) ? 1 / preconditioned(degree / 2, 0) : 0;
       // int was necessary because I could not decrement size_t through zero
-      for(int k = degree/2 - 1; k >= 0; --k) {
-	double sum = 0.; // sum_j mat_kj x_j
-	for(size_t j = 0; j < degree/2 - k; ++j)
-	  sum += preconditioned(k, j) * inverse(j,i);
-	// std::cout << k << "\n";
-	// std::cout << preconditioned(degree/2 - k, degree/2 - k)  << "\n";
-	// std::cout << preconditioned(2,2)  << "\n";
+      for (int k = degree / 2 - 1; k >= 0; --k) {
+        double sum = 0.;  // sum_j mat_kj x_j
+        for (size_t j = 0; j < degree / 2 - k; ++j)
+          sum += preconditioned(k, j) * inverse(j, i);
+        // std::cout << k << "\n";
+        // std::cout << preconditioned(degree/2 - k, degree/2 - k)  << "\n";
+        // std::cout << preconditioned(2,2)  << "\n";
 
-	 // b_k - sum_j mat_kj x_j
-	inverse(degree/2 - k, i) = ((k == i ? 1 : 0) -
-  sum)/preconditioned(k, degree/2 - k);
+        // b_k - sum_j mat_kj x_j
+        inverse(degree / 2 - k, i) =
+            ((k == i ? 1 : 0) - sum) / preconditioned(k, degree / 2 - k);
       }
+    }
+    // s = 0 and m odd (l-1 part)
+    // size triangular matrix ((degree - 2)/2 + 1)^2 = (degree/2)^2
+    // rhs b = e_(degree/2 + 1) ... e_(degree)
+    // matrix structure:
+    // * * *
+    //   * *
+    //     *
+
+    // last row of the triangular matrix -> only one non zero entry in the
+    // inverse (NOTE: entering zeros explicitly not necessary because of the
+    // zero initialisation of the vector class inside square matrix)
+    inverse(2*degree, degree) = 1 / preconditioned(degree, 2 * degree);
+    for (size_t i = 0; i < degree / 2; ++i) {  // loop over rhs'
+      for (size_t k = 1; k < degree / 2; ++k) {
+        double sum = 0.;
+        for (size_t j = 0; j < k; ++j)
+          sum += preconditioned(degree - k, 2 * degree - j) *
+	      inverse(2 * degree - j, degree/2 + 1 + i);
+        inverse(2 * degree - k, degree/2 + 1 + i) =
+            (((degree - k) == (degree/2 + 1 + i) ? 1. : 0) - sum) /
+            preconditioned(degree - k, 2 * degree - k);
+      }
+    }
+  }
+  // s = 1 and m even (l part)
+  // size triangular matrix (degree/2)^2 (no +1, since there is no Yl01)
+  // rhs b = e_(degree + 1) ... e_(3/2*degree)
+  // matrix structure:
+  // * * *
+  //   * *
+  //     *
+  inverse((3*degree)/2, (3*degree/2)) = 1/preconditioned((3 * degree)/2, (3*degree)/2);
+  for (size_t i = 0; i < degree/2; ++i) {
+    for(size_t k = 1; k < degree/2; ++k) {
+      double sum = 0.;
+      for (size_t j = 0; j < k; ++j)
+	sum += preconditioned((3 * degree)/2 - k, (3 * degree)/2 - j) * inverse((3 * degree)/2 - j, degree + 1 + i);
+      inverse((3 * degree)/2 - k, degree + 1 + i) = ((((3 * degree)/2 - k == degree + 1 + i) ? 1. : 0) - sum)/preconditioned((3 * degree)/2 - k, (3 * degree)/2 - k);
     }
   }
   return inverse;
