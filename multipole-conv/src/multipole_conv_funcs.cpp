@@ -164,9 +164,43 @@ multipole_conv::SquareMatrix<double> multipole_conv::permutation(
   return permutation_mat;
 }
 
+// Auxiliary function for invert_basis_transformation
+void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
+                              const multipole_conv::SquareMatrix<double>& mat,
+                              multipole_conv::SquareMatrix<double>& inverse) {
+  size_t last_row_idx = row_idx + size - 1;
+  size_t last_column_idx = column_idx + size - 1;
+
+  // Position of the inverted triangular matrix in the inverse matrix
+  size_t inv_row_idx = column_idx;
+  size_t inv_column_idx = row_idx;
+  size_t inv_last_row_idx = last_column_idx;
+  size_t inv_last_column_idx = last_row_idx;
+
+  // Backward substitution (for "size" times unit vectors)
+  // last row of the upper triangular matrix corresponds to one non zero entry
+  // in the inverse
+  inverse(inv_last_row_idx, inv_last_column_idx) =
+      1. / mat(last_row_idx, last_column_idx);
+  for (size_t i = 0; i < size; ++i) {  // iterating over rhs = e_1, ... , e_size
+    // k = 1 because we already dealt with last row of the upper triangular
+    // matrix
+    for (size_t k = 1; k < size; ++k) {
+      double sum = 0.;
+      for (size_t j = 0; j < k; ++j) {
+        sum += mat(last_row_idx - k, last_column_idx - j) *
+               inverse(inv_last_row_idx - j, inv_column_idx + i);
+      }
+      inverse(inv_last_row_idx - k, inv_column_idx + i) =
+          (((last_row_idx - k == row_idx + i) ? 1 : 0) - sum) /
+          mat(last_row_idx - k, last_column_idx - k);
+    }
+  }
+}
+
 multipole_conv::SquareMatrix<double>
 multipole_conv::invert_basis_transformation(
-    const SquareMatrix<double> &trans_mat) {
+    const SquareMatrix<double>& trans_mat) {
   SquareMatrix<double> inverse(trans_mat.dim());
   size_t degree = (trans_mat.dim() - 1) / 2;
   SquareMatrix<double> preconditioned =
@@ -177,70 +211,21 @@ multipole_conv::invert_basis_transformation(
   if (degree % 2) {  // degree odd
 
   } else {  // degree even
-    // s = 0 and m even (l part
-    // size triangular matrix (degree/2 + 1)^2
-    // rhs b = unit vectors, e_1 ... e_degree/2
-    // matrix structure:
-    // * * *
-    // * *
-    // *
-    for (size_t i = 0; i < degree / 2 + 1; ++i) {  // loop over the rhs'
-      // b_k = delta_ik
-      inverse(0, i) =
-          (i == (degree / 2)) ? 1 / preconditioned(degree / 2, 0) : 0;
-      // int was necessary because I could not decrement size_t through zero
-      for (int k = degree / 2 - 1; k >= 0; --k) {
-        double sum = 0.;  // sum_j mat_kj x_j
-        for (size_t j = 0; j < degree / 2 - k; ++j)
-          sum += preconditioned(k, j) * inverse(j, i);
-        // std::cout << k << "\n";
-        // std::cout << preconditioned(degree/2 - k, degree/2 - k)  << "\n";
-        // std::cout << preconditioned(2,2)  << "\n";
+    // s = 0 and m even (l part)
+    inv_upper_triangular_mat(0, 0, degree / 2 + 1, preconditioned, inverse);
 
-        // b_k - sum_j mat_kj x_j
-        inverse(degree / 2 - k, i) =
-            ((k == i ? 1 : 0) - sum) / preconditioned(k, degree / 2 - k);
-      }
-    }
     // s = 0 and m odd (l-1 part)
-    // size triangular matrix ((degree - 2)/2 + 1)^2 = (degree/2)^2
-    // rhs b = e_(degree/2 + 1) ... e_(degree)
-    // matrix structure:
-    // * * *
-    //   * *
-    //     *
+    inv_upper_triangular_mat(degree / 2 + 1, (3 * degree) / 2 + 1, degree / 2,
+                             preconditioned, inverse);
 
-    // last row of the triangular matrix -> only one non zero entry in the
-    // inverse (NOTE: entering zeros explicitly not necessary because of the
-    // zero initialisation of the vector class inside square matrix)
-    inverse(2*degree, degree) = 1 / preconditioned(degree, 2 * degree);
-    for (size_t i = 0; i < degree / 2; ++i) {  // loop over rhs'
-      for (size_t k = 1; k < degree / 2; ++k) {
-        double sum = 0.;
-        for (size_t j = 0; j < k; ++j)
-          sum += preconditioned(degree - k, 2 * degree - j) *
-	      inverse(2 * degree - j, degree/2 + 1 + i);
-        inverse(2 * degree - k, degree/2 + 1 + i) =
-            (((degree - k) == (degree/2 + 1 + i) ? 1. : 0) - sum) /
-            preconditioned(degree - k, 2 * degree - k);
-      }
-    }
-  }
-  // s = 1 and m even (l part)
-  // size triangular matrix (degree/2)^2 (no +1, since there is no Yl01)
-  // rhs b = e_(degree + 1) ... e_(3/2*degree)
-  // matrix structure:
-  // * * *
-  //   * *
-  //     *
-  inverse((3*degree)/2, (3*degree/2)) = 1/preconditioned((3 * degree)/2, (3*degree)/2);
-  for (size_t i = 0; i < degree/2; ++i) {
-    for(size_t k = 1; k < degree/2; ++k) {
-      double sum = 0.;
-      for (size_t j = 0; j < k; ++j)
-	sum += preconditioned((3 * degree)/2 - k, (3 * degree)/2 - j) * inverse((3 * degree)/2 - j, degree + 1 + i);
-      inverse((3 * degree)/2 - k, degree + 1 + i) = ((((3 * degree)/2 - k == degree + 1 + i) ? 1. : 0) - sum)/preconditioned((3 * degree)/2 - k, (3 * degree)/2 - k);
-    }
+    // s = 1 and m even (l part)
+    // size triangular matrix (degree/2)^2 (no +1, since there is no Yl01)
+    inv_upper_triangular_mat(degree + 1, degree + 1, degree / 2, preconditioned,
+                             inverse);
+
+    // s = 1 and m odd (l - 1 part)
+    inv_upper_triangular_mat((3 * degree) / 2 + 1, degree / 2 + 1, degree / 2,
+                             preconditioned, inverse);
   }
   return inverse;
 }
