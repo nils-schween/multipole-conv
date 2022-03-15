@@ -121,7 +121,7 @@ multipole_conv::SquareMatrix<double> multipole_conv::basis_transformation(
       if (order % 2 == 0 && k == order / 2)
         continue;  // the sum for even m ends at k = order/2 - 1
       basis_transformation(2 * degree - i, (degree - sign_lower_part * order) +
-			   sign_lower_part * 2 * k) =
+                                               sign_lower_part * 2 * k) =
           coefficient(degree, order, p_lower_part, k);
     }
     // m = 0 and s = 0
