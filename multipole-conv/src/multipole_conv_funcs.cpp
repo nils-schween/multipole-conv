@@ -108,22 +108,24 @@ multipole_conv::SquareMatrix<double> multipole_conv::basis_transformation(
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     unsigned int p_upper_part =
         (order % 2 ? 1 : 0);  // p_index for the s = 0 case
+    int sign_upper_part = (p_upper_part ? -1 : 1);
     unsigned int p_lower_part =
         (order % 2 ? 0 : 1);  // p_index for the s = 1 case
+    int sign_lower_part = (p_lower_part ? -1 : 1);
     for (size_t k = 0; k <= std::floor(order / 2); ++k) {
       // Upper part (s = 0)
       basis_transformation(
-          i, p_upper_part * (degree + 1) + order - (2 * k + p_upper_part)) =
+          i, (degree - sign_upper_part * order) + sign_upper_part * 2 * k) =
           coefficient(degree, order, p_upper_part, k);
       // Lower part (s = 1)
       if (order % 2 == 0 && k == order / 2)
         continue;  // the sum for even m ends at k = order/2 - 1
-      basis_transformation(2 * degree - i, p_lower_part * (degree + 1) + order -
-                                               (2 * k + p_lower_part)) =
+      basis_transformation(2 * degree - i, (degree - sign_lower_part * order) +
+			   sign_lower_part * 2 * k) =
           coefficient(degree, order, p_lower_part, k);
     }
     // m = 0 and s = 0
-    basis_transformation(degree, 0) = coefficient(degree, 0, 0, 0);
+    basis_transformation(degree, degree) = coefficient(degree, 0, 0, 0);
   }
   return basis_transformation;
 }
