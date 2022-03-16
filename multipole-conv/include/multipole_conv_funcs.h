@@ -25,7 +25,7 @@ SquareMatrix<std::complex<double>> complex_sph_to_real(std::size_t degree);
 // harmonics without normalisation to multipole basis functions.
 // p_index = 0 belongs to the basis functions M_0qr
 // p_index = 1 belongs to the basis functions M_1qr
-double coefficient(std::size_t degree, std::size_t order, bool p,
+double coefficient(std::size_t degree, std::size_t order, size_t s_index,
                    std::size_t sum_start);
 
 // Computes the basis transformation between the real spherical harmonics
