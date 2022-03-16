@@ -162,5 +162,17 @@ SquareMatrix<typename MatrixReturn<T, S>::type> operator*(
   }
   return res;
 }
+
+// MatrixVector mult
+template <typename T, typename S>
+std::vector<typename MatrixReturn<T,S>::type> operator*(const SquareMatrix<T>& mat, const std::vector<S>& vec) {
+  std::vector<typename MatrixReturn<T,S>::type> res(vec.size());
+  for(size_t i = 0; i < mat.dim(); ++i) {
+    for(size_t j = 0; j < vec.size(); ++j){
+      res[i] += mat(i,j) * vec[j];
+    }
+  }
+  return res;
+}
 }  // namespace mutlipole_conv
 #endif
