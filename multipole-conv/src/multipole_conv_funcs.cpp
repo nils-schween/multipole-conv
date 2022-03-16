@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <vector>
 
 #include "constants.h"
 #include "math.h"
@@ -166,9 +167,10 @@ multipole_conv::SquareMatrix<double> multipole_conv::permutation(
   return permutation_mat;
 }
 
-// Auxiliary function for invert_basis_transformation
+// Auxiliary functions for invert_basis_transformation
 void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
                               const multipole_conv::SquareMatrix<double>& mat,
+			      const std::vector<double>& rhs,
                               multipole_conv::SquareMatrix<double>& inverse) {
   size_t last_row_idx = row_idx + size - 1;
   size_t last_column_idx = column_idx + size - 1;
@@ -183,7 +185,7 @@ void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
   // last row of the upper triangular matrix corresponds to one non zero entry
   // in the inverse
   inverse(inv_last_row_idx, inv_last_column_idx) =
-      1. / mat(last_row_idx, last_column_idx);
+      rhs[last_row_idx] / mat(last_row_idx, last_column_idx);
   for (size_t i = 0; i < size; ++i) {  // iterating over rhs = e_1, ... , e_size
     // k = 1 because we already dealt with last row of the upper triangular
     // matrix
@@ -194,10 +196,35 @@ void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
                inverse(inv_last_row_idx - j, inv_column_idx + i);
       }
       inverse(inv_last_row_idx - k, inv_column_idx + i) =
-          (((last_row_idx - k == row_idx + i) ? 1 : 0) - sum) /
+          (((last_row_idx - k == row_idx + i) ? rhs[row_idx + i] : 0) - sum) /
           mat(last_row_idx - k, last_column_idx - k);
     }
   }
+}
+
+// Creating a diagonal matrix which preconditions the basis transformation
+// matrix in a way to stabilise it numerically
+multipole_conv::SquareMatrix<double> preconditioner (size_t degree) {
+  multipole_conv::SquareMatrix<double> precond (2 * degree + 1);
+
+  double factor = 1.;
+  for(size_t order = degree, i = 0; i < degree; ++i, --order) {
+    // divide by the first element of the row
+    precond(i, i) = 1/multipole_conv::coefficient(degree, order, 0, 0);
+    precond(2*degree - i, 2*degree -i) = 1/multipole_conv::coefficient(degree, order, 1, 0);
+  }
+  precond(degree, degree) = 1/multipole_conv::coefficient(degree, 0, 0, 0);
+  return precond;
+}
+// The preconditioning also changes the right-hand sides, i.e the unit vectors
+std::vector<double> preconditioned_rhs(size_t degree) {
+  std::vector<double> rhs(2*degree + 1);
+  for(size_t order = degree, i = 0; i < degree; ++i, --order) {
+    rhs[i] = 1/multipole_conv::coefficient(degree, order, 0, 0);
+    rhs[2 * degree - i] =1/multipole_conv::coefficient(degree, order, 1, 0);
+  }
+  rhs[degree] = 1/multipole_conv::coefficient(degree, 0, 0, 0);
+  return rhs;
 }
 
 multipole_conv::SquareMatrix<double>
@@ -205,29 +232,49 @@ multipole_conv::invert_basis_transformation(
     const SquareMatrix<double>& trans_mat) {
   SquareMatrix<double> inverse(trans_mat.dim());
   size_t degree = (trans_mat.dim() - 1) / 2;
+  // std::vector<double> rhs (2*degree + 1, 1.);
+  std::vector<double> rhs = permutation(degree) * preconditioned_rhs(degree);
   SquareMatrix<double> preconditioned =
-      permutation(degree) * trans_mat * permutation((degree)).transpose();
+      permutation(degree) * preconditioner(degree) * trans_mat * permutation((degree)).transpose();
+  preconditioned.print();
   // Since the preconditioned transformation matrix has a different structure
-  // for even and odd degrees, we have to distinguish these cases. This leads to
-  // duplication of code. TODO: improve when you have got time
+  // for even and odd degrees, we have to distinguish these cases.
   if (degree % 2) {  // degree odd
+    // s = 0 and m odd (l part)
+    // size ((degree - 1)/2 + 1)^2
+    // row index = 0, column index = degree + 1
+    inv_upper_triangular_mat(0, degree + 1, (degree - 1) / 2 + 1, preconditioned, rhs, inverse);
+    
+    // s = 0 and m even (l-1 part)
+    // size ((degree - 1)/2 + 1)^2
+    // row index = (degree - 1)/2 + 1, column index = (degree - 1)/2 + 1
+    inv_upper_triangular_mat((degree -1)/2 + 1, (degree - 1)/2 + 1, (degree - 1)/2 + 1, preconditioned, rhs, inverse);
+    
+    // s = 1 and m odd (l part)
+    // size ((degree-1)/2 + 1)^2
+    // row index = degree + 1, column index = 0
+    inv_upper_triangular_mat(degree + 1, 0, (degree - 1) / 2 + 1, preconditioned, rhs, inverse);
 
+    // s = 1 and m even (l-1 part)
+    // size ((degree - 1)/2)^2
+    // row_index = 3 * (degree + 1)/2, column index = 3 * (degree + 1)/2
+    inv_upper_triangular_mat(3 * (degree + 1)/2, 3*(degree + 1)/2, (degree - 1) / 2, preconditioned, rhs, inverse);
   } else {  // degree even
     // s = 0 and m even (l part)
-    inv_upper_triangular_mat(0, 0, degree / 2 + 1, preconditioned, inverse);
+    inv_upper_triangular_mat(0, 0, degree / 2 + 1, preconditioned, rhs, inverse);
 
     // s = 0 and m odd (l-1 part)
     inv_upper_triangular_mat(degree / 2 + 1, (3 * degree) / 2 + 1, degree / 2,
-                             preconditioned, inverse);
+                             preconditioned, rhs, inverse);
 
     // s = 1 and m even (l part)
     // size triangular matrix (degree/2)^2 (no +1, since there is no Yl01)
-    inv_upper_triangular_mat(degree + 1, degree + 1, degree / 2, preconditioned,
+    inv_upper_triangular_mat(degree + 1, degree + 1, degree / 2, preconditioned, rhs,
                              inverse);
 
     // s = 1 and m odd (l - 1 part)
     inv_upper_triangular_mat((3 * degree) / 2 + 1, degree / 2 + 1, degree / 2,
-                             preconditioned, inverse);
+                             preconditioned, rhs, inverse);
   }
   return inverse;
 }
