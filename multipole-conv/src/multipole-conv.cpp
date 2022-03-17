@@ -2,25 +2,34 @@
 #include <complex>
 #include <iostream>
 
+#include "math.h"
+#include "multipole_conv_funcs.h"
 #include "options.h"
 #include "square_matrix.h"
 #include "square_matrix_operations.h"
-#include "multipole_conv_funcs.h"
 
 int main(int argc, char *argv[]) {
   using namespace std::complex_literals;
   using namespace multipole_conv;
 
-  std::size_t degree = 6;
+  std::size_t degree = 3;
+  // Johnston
   SquareMatrix<double> basis_transformation_mat = basis_transformation(degree);
-  // basis_transformation_mat.print();
+  basis_transformation_mat.print();
 
-  // SquareMatrix<double> permutation_mat = permutation(5);
-  // permutation_mat.print();
-  SquareMatrix<double> temp = permutation(degree)*basis_transformation_mat*permutation(degree).transpose();
-  temp.print();
+  SquareMatrix<double> multipole_basis =
+      invert_basis_transformation(johnston_factor(degree) *
+                                  condon_shortley_phase(degree) *
+                                  basis_transformation_mat) /
+      factorial(degree);
+  multipole_basis.print();
 
-  SquareMatrix<double> inverse = invert_basis_transformation(basis_transformation_mat);
-  (inverse * temp).print();
+  // Jackson
+  SquareMatrix<std::complex<double>> spherical_multipole_moments =
+      (real_sph_to_complex(degree) * norms_real_sph(degree) *
+       basis_transformation_mat)
+          .conjugate();
+  spherical_multipole_moments.print();
+
   return 0;
 }
