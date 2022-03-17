@@ -7,12 +7,21 @@
 #include "square_matrix.h"
 
 namespace multipole_conv {
+// Compute the Condon Shortley Phase for all the spherical harmonics of degree l
+SquareMatrix<double> condon_shortley_phase(std::size_t degree);
+
 // Compute the normalisations of all the real spherical harmonics of degree l
 SquareMatrix<double> norms_real_sph(std::size_t degree);
 
 // Compute the normalisations of all the complex spherical harmonics of degree l
 SquareMatrix<double> norms_complex_sph(std::size_t degree);
 
+// Due to the Addition theoreom of spherical harmonics, there are additional
+// factors in representation of the potential in terms of spherical harmonics:
+// The factor (2l + 1)/4pi for (real/complex) spherical harmonics with
+// normalisation. And the factor 2*(l - m)!/(l + m)! for real spherical
+// harmonics without normalisation.
+SquareMatrix<double> johnston_factor(std::size_t degree);
 // Compute the transformation matrix from the real spherical harmonics to the
 // complex spherical harmonics
 SquareMatrix<std::complex<double>> real_sph_to_complex(std::size_t degree);
