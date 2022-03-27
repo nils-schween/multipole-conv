@@ -6,13 +6,13 @@
 
 #include "constants.h"
 #include "math.h"
-#include "square_matrix.h"
+#include "matrix.h"
 
 using std::size_t;
 
-multipole_conv::SquareMatrix<double> multipole_conv::condon_shortley_phase(
+multipole_conv::Matrix<double> multipole_conv::condon_shortley_phase(
     std::size_t degree) {
-  SquareMatrix<double> csp(2 * degree + 1);
+  Matrix<double> csp(2 * degree + 1);
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     int sign = order % 2 ? -1 : 1;
     csp(i, i) = sign;
@@ -22,9 +22,9 @@ multipole_conv::SquareMatrix<double> multipole_conv::condon_shortley_phase(
   return csp;
 }
 
-multipole_conv::SquareMatrix<double> multipole_conv::norms_real_sph(
+multipole_conv::Matrix<double> multipole_conv::norms_real_sph(
     size_t degree) {
-  SquareMatrix<double> res{2 * degree + 1};
+  Matrix<double> res{2 * degree + 1};
   double factor = {std::sqrt((2 * degree + 1) / (2 * pi))};
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     double norm_degree_order =
@@ -37,9 +37,9 @@ multipole_conv::SquareMatrix<double> multipole_conv::norms_real_sph(
   return res;
 }
 
-multipole_conv::SquareMatrix<double> multipole_conv::norms_complex_sph(
+multipole_conv::Matrix<double> multipole_conv::norms_complex_sph(
     size_t degree) {
-  SquareMatrix<double> res{2 * degree + 1};
+  Matrix<double> res{2 * degree + 1};
   double factor = {std::sqrt((2 * degree + 1) / (4 * pi))};
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     // positive order (m > 0)
@@ -56,9 +56,9 @@ multipole_conv::SquareMatrix<double> multipole_conv::norms_complex_sph(
   return res;
 }
 
-multipole_conv::SquareMatrix<double> multipole_conv::johnston_factor(
+multipole_conv::Matrix<double> multipole_conv::johnston_factor(
     std::size_t degree) {
-  SquareMatrix<double> jf(2 * degree + 1);
+  Matrix<double> jf(2 * degree + 1);
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     jf(i, i) = 2 * factorial(degree - order) / factorial(degree + order);
     jf(2 * degree - i, 2 * degree - i) = jf(i, i);
@@ -67,10 +67,10 @@ multipole_conv::SquareMatrix<double> multipole_conv::johnston_factor(
   return jf;
 }
 
-multipole_conv::SquareMatrix<std::complex<double>>
+multipole_conv::Matrix<std::complex<double>>
 multipole_conv::real_sph_to_complex(size_t degree) {
   using namespace std::complex_literals;
-  SquareMatrix<std::complex<double>> transformation_matrix{2 * degree + 1};
+  Matrix<std::complex<double>> transformation_matrix{2 * degree + 1};
   double factor = 1 / std::sqrt(2);
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     // (-1)^order term
@@ -88,12 +88,12 @@ multipole_conv::real_sph_to_complex(size_t degree) {
   return transformation_matrix;
 }
 
-multipole_conv::SquareMatrix<std::complex<double>>
+multipole_conv::Matrix<std::complex<double>>
 multipole_conv::complex_sph_to_real(size_t degree) {
   // The transformation between the real and the complex spherical harmonics is
   // a unitary transformation, i.e its inverse is the transpose conjugate of the
   // corresponding transformation matrix
-  SquareMatrix<std::complex<double>> transformation_matrix =
+  Matrix<std::complex<double>> transformation_matrix =
       real_sph_to_complex(degree).transpose().conjugate();
   return transformation_matrix;
 }
@@ -130,11 +130,11 @@ double multipole_conv::coefficient(size_t degree, size_t order, size_t s_index,
   return res;
 }
 
-multipole_conv::SquareMatrix<double> multipole_conv::basis_transformation(
+multipole_conv::Matrix<double> multipole_conv::basis_transformation(
     size_t degree) {
   // NOTE: The implementation of of this function strongly depends on the chosen
   // ordering of the real spherical harmonics and the multipole basis functions
-  SquareMatrix<double> basis_transformation{2 * degree + 1};
+  Matrix<double> basis_transformation{2 * degree + 1};
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     int sign_upper_part = (order % 2 ? -1 : 1);
     int sign_lower_part = (order % 2 ? 1 : -1);
@@ -156,9 +156,9 @@ multipole_conv::SquareMatrix<double> multipole_conv::basis_transformation(
   return basis_transformation;
 }
 
-multipole_conv::SquareMatrix<double> multipole_conv::permutation(
+multipole_conv::Matrix<double> multipole_conv::permutation(
     size_t degree) {
-  SquareMatrix<double> permutation_mat(2 * degree + 1);
+  Matrix<double> permutation_mat(2 * degree + 1);
   // l
   // upper part: r^l Y_ll0, r^l Y_ll-20 ...
   // lower part: r^l Y_ll1, r^l Y_ll-21 ...
@@ -192,8 +192,8 @@ multipole_conv::SquareMatrix<double> multipole_conv::permutation(
 
 // Auxiliary functions for invert_basis_transformation
 void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
-                              const multipole_conv::SquareMatrix<double>& mat,
-                              multipole_conv::SquareMatrix<double>& inverse) {
+                              const multipole_conv::Matrix<double>& mat,
+                              multipole_conv::Matrix<double>& inverse) {
   size_t last_row_idx = row_idx + size - 1;
   size_t last_column_idx = column_idx + size - 1;
 
@@ -224,12 +224,12 @@ void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
   }
 }
 
-multipole_conv::SquareMatrix<double>
+multipole_conv::Matrix<double>
 multipole_conv::invert_basis_transformation(
-    const SquareMatrix<double>& trans_mat) {
-  SquareMatrix<double> inverse(trans_mat.dim());
-  size_t degree = (trans_mat.dim() - 1) / 2;
-  SquareMatrix<double> preconditioned =
+    const Matrix<double>& trans_mat) {
+  Matrix<double> inverse(trans_mat.rows());
+  size_t degree = (trans_mat.rows() - 1) / 2;
+  Matrix<double> preconditioned =
       permutation(degree) * trans_mat * permutation((degree)).transpose();
   // Since the preconditioned transformation matrix has a different structure
   // for even and odd degrees, we have to distinguish these cases.

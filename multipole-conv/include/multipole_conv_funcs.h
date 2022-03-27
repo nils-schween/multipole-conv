@@ -4,31 +4,31 @@
 #include <complex>
 #include <cstddef>
 
-#include "square_matrix.h"
+#include "matrix.h"
 
 namespace multipole_conv {
 // Compute the Condon Shortley Phase for all the spherical harmonics of degree l
-SquareMatrix<double> condon_shortley_phase(std::size_t degree);
+Matrix<double> condon_shortley_phase(std::size_t degree);
 
 // Compute the normalisations of all the real spherical harmonics of degree l
-SquareMatrix<double> norms_real_sph(std::size_t degree);
+Matrix<double> norms_real_sph(std::size_t degree);
 
 // Compute the normalisations of all the complex spherical harmonics of degree l
-SquareMatrix<double> norms_complex_sph(std::size_t degree);
+Matrix<double> norms_complex_sph(std::size_t degree);
 
 // Due to the Addition theoreom of spherical harmonics, there are additional
 // factors in representation of the potential in terms of spherical harmonics:
 // The factor (2l + 1)/4pi for (real/complex) spherical harmonics with
 // normalisation. And the factor 2*(l - m)!/(l + m)! for real spherical
 // harmonics without normalisation.
-SquareMatrix<double> johnston_factor(std::size_t degree);
+Matrix<double> johnston_factor(std::size_t degree);
 // Compute the transformation matrix from the real spherical harmonics to the
 // complex spherical harmonics
-SquareMatrix<std::complex<double>> real_sph_to_complex(std::size_t degree);
+Matrix<std::complex<double>> real_sph_to_complex(std::size_t degree);
 
 // Compute the transformation matrix from the complex spherical harmonics to the
 // real spherical harmonics
-SquareMatrix<std::complex<double>> complex_sph_to_real(std::size_t degree);
+Matrix<std::complex<double>> complex_sph_to_real(std::size_t degree);
 
 // Computes the coefficient in the basis transformation from the real spherical
 // harmonics without normalisation to multipole basis functions.
@@ -39,15 +39,15 @@ double coefficient(std::size_t degree, std::size_t order, size_t s_index,
 
 // Computes the basis transformation between the real spherical harmonics
 // without normalisation and multipole basis function
-SquareMatrix<double> basis_transformation(std::size_t degree);
+Matrix<double> basis_transformation(std::size_t degree);
 
 // Create a permutation matrix which, when multiplied with the basis
 // transformation matrix, results in a matrix with four blocks of triangular
 // matrices
-SquareMatrix<double> permutation(std::size_t degree);
+Matrix<double> permutation(std::size_t degree);
 
 // Invert the basis transformation matrix
-SquareMatrix<double> invert_basis_transformation(
-    const SquareMatrix<double>& trans_mat);
+Matrix<double> invert_basis_transformation(
+    const Matrix<double>& trans_mat);
 }  // namespace multipole_conv
 #endif
