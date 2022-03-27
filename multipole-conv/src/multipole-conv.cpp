@@ -4,9 +4,9 @@
 #include <vector>
 
 #include "math.h"
+#include "matrix.h"
 #include "multipole_conv_funcs.h"
 #include "options.h"
-#include "matrix.h"
 #include "square_matrix_operations.h"
 
 int main(int argc, char *argv[]) {
@@ -24,6 +24,11 @@ int main(int argc, char *argv[]) {
                                   basis_transformation_mat) /
       factorial(degree);
   multipole_basis.print();
+
+  Matrix<double> dependent_components =
+      multipole_conv::dependent_components(multipole_basis);
+
+  dependent_components.print();
 
   // Jackson
   Matrix<std::complex<double>> spherical_multipole_moments =
