@@ -56,15 +56,43 @@ multipole_conv::Matrix<double> multipole_conv::norms_complex_sph(
   return res;
 }
 
-multipole_conv::Matrix<double> multipole_conv::johnston_factor(
-    std::size_t degree) {
-  Matrix<double> jf(2 * degree + 1);
-  for (size_t order = degree, i = 0; i < degree; ++i, --order) {
-    jf(i, i) = 2 * factorial(degree - order) / factorial(degree + order);
-    jf(2 * degree - i, 2 * degree - i) = jf(i, i);
+multipole_conv::Matrix<double> multipole_conv::norms_sph(
+    size_t degree, multipole_conv::MPOptions options) {
+  Matrix<double> res{2 * degree + 1};
+  if ((options & MPOptions::complex) != MPOptions::none)
+    res = norms_complex_sph(degree);
+  else
+    res = norms_real_sph(degree);
+  return res;
+}
+
+multipole_conv::Matrix<double> multipole_conv::addition_theorem_factor(
+    std::size_t degree, multipole_conv::MPOptions options) {
+  Matrix<double> add_thm_factor(2 * degree + 1);
+  double factor = 1.;
+  if ((options & MPOptions::normalisation) != MPOptions::none) {
+    // If splitted, take the square of the factor
+    if ((options & MPOptions::split_addition_theroem) != MPOptions::none)
+      factor = std::sqrt((2 * degree + 1) / (4 * pi));
+    else
+      factor = (2 * degree + 1) / (4 * pi);
+    // fill diagonal with factor
+    for (size_t i = 0; i < 2 * degree + 1; ++i) add_thm_factor(i, i) = factor;
+
+  } else {
+    for (size_t order = degree, i = 0; i < degree; ++i, --order) {
+      if ((options & MPOptions::split_addition_theroem) != MPOptions::none)
+        factor = std::sqrt(2 * factorial(degree - order) /
+                           factorial(degree + order));
+      else
+        factor = 2 * factorial(degree - order) / factorial(degree + order);
+
+      add_thm_factor(i, i) = factor;
+      add_thm_factor(2 * degree - i, 2 * degree - i) = add_thm_factor(i, i);
+    }
+    add_thm_factor(degree, degree) = 1;
   }
-  jf(degree, degree) = 1;
-  return jf;
+  return add_thm_factor;
 }
 
 multipole_conv::Matrix<std::complex<double>>

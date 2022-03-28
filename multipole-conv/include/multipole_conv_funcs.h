@@ -7,6 +7,7 @@
 
 #include "math.h"
 #include "matrix.h"
+#include "options.h"
 
 namespace multipole_conv {
 // Compute the Condon Shortley Phase for all the spherical harmonics of degree l
@@ -17,6 +18,9 @@ Matrix<double> norms_real_sph(std::size_t degree);
 
 // Compute the normalisations of all the complex spherical harmonics of degree l
 Matrix<double> norms_complex_sph(std::size_t degree);
+
+// Use options to determine if you norms_real_sph or norms_complex_sph is called
+Matrix<double> norms_sph(size_t degree, MPOptions options);
 
 // Due to the Addition theoreom of spherical harmonics, there are additional
 // factors in the expansion of the potential in terms of spherical harmonics:
