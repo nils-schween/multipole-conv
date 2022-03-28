@@ -47,6 +47,8 @@ class Matrix {
   // allowed. Allows to mix operations between complex<T> and T. But does not
   // allow to mix double and float.
  public:
+  using value_type = T;
+
   Matrix(std::size_t n)
       : n_rows{n}, n_columns(n), matrix_elements(n_rows * n_columns) {}
 
@@ -62,6 +64,14 @@ class Matrix {
 
   const T& operator()(std::size_t i, std::size_t j) const {
     return matrix_elements[i * n_columns + j];
+  }
+
+  // Allow to convert a matrix with double entries to complex matrix in an
+  // assignment operation
+  template <typename Q = T>
+  std::enable_if_t<is_complex<Q>::value, Matrix<Q>> operator=(
+      const Matrix<double>& rhs) {
+    
   }
 
   void print();
