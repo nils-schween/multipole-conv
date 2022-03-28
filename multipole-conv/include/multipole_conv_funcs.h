@@ -25,9 +25,10 @@ Matrix<double> norms_sph(size_t degree, MPOptions options);
 // Due to the Addition theoreom of spherical harmonics, there are additional
 // factors in the expansion of the potential in terms of spherical harmonics:
 // The factor (2l + 1)/4pi for (real/complex) spherical harmonics with
-// normalisation. And the factor 2*(l - m)!/(l + m)! for real spherical
-// harmonics without normalisation.
-Matrix<double> johnston_factor(std::size_t degree);
+// normalisation. And the factor (2/(1 + \delta_0m)*(l - m)!/(l + m)! for real
+// spherical harmonics without normalisation.
+Matrix<double> addition_theorem_factor(std::size_t degree, MPOptions options);
+
 // Compute the transformation matrix from the real spherical harmonics to the
 // complex spherical harmonics
 Matrix<std::complex<double>> real_sph_to_complex(std::size_t degree);

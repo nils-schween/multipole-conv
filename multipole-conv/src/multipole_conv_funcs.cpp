@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "math.h"
 #include "matrix.h"
+#include "options.h"
 
 using std::size_t;
 
@@ -22,8 +23,7 @@ multipole_conv::Matrix<double> multipole_conv::condon_shortley_phase(
   return csp;
 }
 
-multipole_conv::Matrix<double> multipole_conv::norms_real_sph(
-    size_t degree) {
+multipole_conv::Matrix<double> multipole_conv::norms_real_sph(size_t degree) {
   Matrix<double> res{2 * degree + 1};
   double factor = {std::sqrt((2 * degree + 1) / (2 * pi))};
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
@@ -184,8 +184,7 @@ multipole_conv::Matrix<double> multipole_conv::basis_transformation(
   return basis_transformation;
 }
 
-multipole_conv::Matrix<double> multipole_conv::permutation(
-    size_t degree) {
+multipole_conv::Matrix<double> multipole_conv::permutation(size_t degree) {
   Matrix<double> permutation_mat(2 * degree + 1);
   // l
   // upper part: r^l Y_ll0, r^l Y_ll-20 ...
@@ -252,8 +251,7 @@ void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
   }
 }
 
-multipole_conv::Matrix<double>
-multipole_conv::invert_basis_transformation(
+multipole_conv::Matrix<double> multipole_conv::invert_basis_transformation(
     const Matrix<double>& trans_mat) {
   Matrix<double> inverse(trans_mat.rows());
   size_t degree = (trans_mat.rows() - 1) / 2;
@@ -302,5 +300,5 @@ multipole_conv::invert_basis_transformation(
     inv_upper_triangular_mat((3 * degree) / 2 + 1, degree / 2 + 1, degree / 2,
                              preconditioned, inverse);
   }
-  return permutation(degree).transpose()*inverse*permutation(degree);
+  return permutation(degree).transpose() * inverse * permutation(degree);
 }
