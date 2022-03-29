@@ -66,14 +66,6 @@ class Matrix {
     return matrix_elements[i * n_columns + j];
   }
 
-  // Allow to convert a matrix with double entries to complex matrix in an
-  // assignment operation
-  template <typename Q = T>
-  std::enable_if_t<is_complex<Q>::value, Matrix<Q>> operator=(
-      const Matrix<double>& rhs) {
-    
-  }
-
   void print();
   std::size_t rows() const { return n_rows; };
   std::size_t columns() const { return n_columns; };
