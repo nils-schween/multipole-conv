@@ -56,45 +56,7 @@ Matrix<double> permutation(std::size_t degree);
 // Invert the basis transformation matrix
 Matrix<double> invert_basis_transformation(const Matrix<double>& trans_mat);
 
-// Compute the dependent components of Cartesian multipole moment. Since the
-// multipole basis may be expressed as a linear combination of real or complex
-// spherical harmonics, I need to use a template here. And the definiton of the
-// template must go in the header file. This breaks with the previous
-// programming style (separation of declaration and definiton). Maybe there is a
-// better way to solve this.
-template <typename T>  // T either double or std::complex<double>
-Matrix<T> dependent_components(Matrix<T>& multipole_basis_mat) {
-  std::size_t degree = (multipole_basis_mat.rows() - 1) / 2;
-  Matrix<double> dep_comps(((degree - 1) * degree) / 2, 2 * degree + 1);
-  std::size_t dep_comp_idx = 0;
-  for (std::size_t order = degree, i = 0; i < (degree - 1); ++i, --order) {
-    for (std::size_t p_idx = order; p_idx > 1; --p_idx) {
-      // To each combination order,p_index belongs one dependent component. The
-      // dependent components are a linear combination of the multipole basis
-      // functions (which are represented) by the rows of the
-      // multipole_basis_mat (pattern of dependence is Pascal's triangle).
-
-      // Loop through the correspoding layer of Pascal's triangle
-      // Distinguish between even and odd p_index
-      int sign = (p_idx % 2 ? -1 : 1);
-      size_t steps = std::floor(p_idx / 2);  // steps in Pascal's triangle
-      // NOTE: steps + 1 = number of functions on which the dependent component
-      // depends on
-      int sign_in_pascals_triangle = (steps % 2 ? -1 : 1);
-      for (std::size_t row_idx = (p_idx % 2) * 2 * degree + sign * i, j = 0;
-           j <= steps; ++j, row_idx += sign * 2) {
-        // add up the rows of multipole_basis_mat
-        for (size_t k = 0; k < 2 * degree + 1; ++k) {
-          dep_comps(dep_comp_idx, k) += sign_in_pascals_triangle *
-                                        binomial(steps, j) *
-                                        multipole_basis_mat(row_idx, k);
-        }
-      }
-      ++dep_comp_idx;
-    }
-  }
-  return dep_comps;
-}
-
+// Compute the dependent components of Cartesian multipole moment
+Matrix<double> dependent_components(Matrix<double>& multipole_basis_mat);
 }  // namespace multipole_conv
 #endif
