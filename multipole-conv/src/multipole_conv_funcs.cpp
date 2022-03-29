@@ -12,7 +12,7 @@
 using std::size_t;
 
 multipole_conv::Matrix<double> multipole_conv::condon_shortley_phase(
-    std::size_t degree) {
+    size_t degree) {
   Matrix<double> csp(2 * degree + 1);
   for (size_t order = degree, i = 0; i < degree; ++i, --order) {
     int sign = order % 2 ? -1 : 1;
