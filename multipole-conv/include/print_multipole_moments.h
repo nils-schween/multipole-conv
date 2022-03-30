@@ -9,12 +9,13 @@
 #include "matrix.h"
 #include "options.h"
 
+namespace multipole_conv {
 template <typename T>
-void print_spherical_multipole_moments(const multipole_conv::Matrix<T>& mat,
-                                       multipole_conv::MPOptions options) {
+void print_spherical_multipole_moments(const Matrix<T>& mat,
+                                       const MPOptions& options) {
   std::size_t degree = (mat.rows() - 1) / 2;
-  if ((options & multipole_conv::MPOptions::complex) !=
-      multipole_conv::MPOptions::none) {
+  if ((options & MPOptions::complex) !=
+      MPOptions::none) {
     std::cout << std::showpos;
     for (int order = degree, i = 0; i < mat.rows(); ++i, --order) {
       // std::size_t q_index = ((i > degree) ? -1 : 1) * order;
@@ -53,15 +54,41 @@ void print_spherical_multipole_moments(const multipole_conv::Matrix<T>& mat,
 }
 
 template <typename T>
-void print_cartesian_multipole_moments(multipole_conv::Matrix<T> mat,
-                                       multipole_conv::MPOptions options) {
-  mat.print();
+void print_cartesian_multipole_moments(const Matrix<T>& mat,
+                                       const MPOptions& options) {
+  std::size_t degree = (mat.rows() - 1) / 2;
+
+  for (std::size_t i = 0; i < mat.rows(); ++i ) {
+    std::size_t p_index = (i > degree ? 1 : 0);
+    std::size_t q_index = (i > degree ? i - degree : degree - i) - p_index;
+    std::size_t r_index = degree - p_index - q_index;
+    std::cout << std::showpos;
+    std::cout << "M_" << p_index << "," << q_index << "," << r_index << " =";
+    if((options &  MPOptions::complex) != MPOptions::none) {
+      for(int order = degree, j = 0; j < mat.columns(); ++j, --order) {
+	std::complex<double> current_element {mat(i,j)};
+	std::cout << " " << current_element.real() << current_element.imag()
+		  << "i"
+		  << " rho^" << order << "_" << degree;
+      }
+    }
+    else {
+      for(int order = degree, j = 0; j < mat.columns(); ++j, --order) {
+	std::size_t m = ((j > degree) ? -1 : 1) * order;
+	std::size_t s = (j > degree) ? 1 : 0;
+      }
+    }
+    std::cout << "\n";
+  }
 }
+
+
+
 
 template <typename T>
-void print_dependent_components(multipole_conv::Matrix<T> mat,
-                                multipole_conv::MPOptions options) {
+void print_dependent_components(const Matrix<T>& mat,
+                                const MPOptions& options) {
   mat.print();
 }
-
+}
 #endif
