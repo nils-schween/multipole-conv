@@ -66,7 +66,7 @@ class Matrix {
     return matrix_elements[i * n_columns + j];
   }
 
-  void print();
+  void print() const;
   std::size_t rows() const { return n_rows; };
   std::size_t columns() const { return n_columns; };
   std::size_t size() const { return matrix_elements.size(); }
@@ -87,7 +87,7 @@ class Matrix {
 
 // Definition of print()
 template <typename T>
-void Matrix<T>::print() {
+void Matrix<T>::print() const {
   for (std::size_t i = 0; i < n_rows; ++i) {
     std::cout << std::left;
     for (std::size_t j = 0; j < n_columns; ++j) {
