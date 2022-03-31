@@ -5,19 +5,20 @@ namespace multipole_conv {
 enum class MPOptions {
   none = 0,
   complex = 1 << 0,        // use complex solid harmonics
-  normalisation = 1 << 1,  // normalise (real/complex) solid harmonics
-  remove_condon_shortley_phase = 1 << 2,  // remove the condon shortley phase
+  complex_conjugate = 1 << 1,  // use the complex conjugate of the solid harmonics 
+  normalisation = 1 << 2,  // normalise (real/complex) solid harmonics
+  remove_condon_shortley_phase = 1 << 3,  // remove the condon shortley phase
   // include the addition theorem factor in the definition of the spherical
   // multipole moments: (2l + 1)/4pi (with normalisation) and (2/(1 + \delta_m0)
   // * (l - m)!/(l + m)! (without normalisation)
-  include_addition_theorem = 1 << 3,
-  split_addition_theroem = 1 << 4,  // Include the square root of the addition
+  include_addition_theorem = 1 << 4,
+  split_addition_theroem = 1 << 5,  // Include the square root of the addition
                                     // theorem factor in the definiton spherical
                                     // multipole moments
-  cartesian = 1 << 5,               // cartesian mps in terms of spherical mps
-  dependent_components = 1 << 6,    // compute the dependent components of the
+  cartesian = 1 << 6,               // cartesian mps in terms of spherical mps
+  dependent_components = 1 << 7,    // compute the dependent components of the
                                     // cartesian mps as well
-  include_l_factorial = 1 << 7      //  Include l factorial in the definition of
+  include_l_factorial = 1 << 8     //  Include l factorial in the definition of
                                     //  the cartesian mps
 };
 
@@ -34,6 +35,8 @@ inline StreamType &operator<<(StreamType &s, MPOptions f) {
   s << "Used options: \n";
   if ((f & MPOptions::complex) != MPOptions::none)
     s << " - Complex solid harmonics are used\n";
+  if ((f & MPOptions::complex_conjugate) != MPOptions::none)
+    s << " - Complex conjugate solid harmonics are used\n";
   if ((f & MPOptions::normalisation) != MPOptions::none)
     s << " - The solid harmonics are normalised\n";
   if ((f & MPOptions::remove_condon_shortley_phase) != MPOptions::none) {
