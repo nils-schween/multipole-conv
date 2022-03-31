@@ -12,7 +12,7 @@ enum class MPOptions {
   // multipole moments: (2l + 1)/4pi (with normalisation) and (2/(1 + \delta_m0)
   // * (l - m)!/(l + m)! (without normalisation)
   include_addition_theorem = 1 << 4,
-  split_addition_theroem = 1 << 5,  // Include the square root of the addition
+  split_addition_theorem = 1 << 5,  // Include the square root of the addition
                                     // theorem factor in the definiton spherical
                                     // multipole moments
   cartesian = 1 << 6,               // cartesian mps in terms of spherical mps
@@ -47,7 +47,7 @@ inline StreamType &operator<<(StreamType &s, MPOptions f) {
     s << " - An additional factor coming from the addition theorem is "
          "included in the definition of the spherical multipole moments\n";
   }
-  if ((f & MPOptions::split_addition_theroem) != MPOptions::none) {
+  if ((f & MPOptions::split_addition_theorem) != MPOptions::none) {
     s << " - The square root of the additional factor coming from the "
          "addition theorem is included in the definition of the spherical "
          "multipole moments\n";

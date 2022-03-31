@@ -63,7 +63,7 @@ multipole_conv::Matrix<double> multipole_conv::addition_theorem_factor(
   double factor = 1.;
   if ((options & MPOptions::normalisation) != MPOptions::none) {
     // If splitted, take the square of the factor
-    if ((options & MPOptions::split_addition_theroem) != MPOptions::none)
+    if ((options & MPOptions::split_addition_theorem) != MPOptions::none)
       factor = std::sqrt((2 * degree + 1) / (4 * pi));
     else
       factor = (2 * degree + 1) / (4 * pi);
@@ -72,7 +72,7 @@ multipole_conv::Matrix<double> multipole_conv::addition_theorem_factor(
 
   } else {
     for (size_t order = degree, i = 0; i < degree; ++i, --order) {
-      if ((options & MPOptions::split_addition_theroem) != MPOptions::none)
+      if ((options & MPOptions::split_addition_theorem) != MPOptions::none)
         factor = std::sqrt(2 * factorial(degree - order) /
                            factorial(degree + order));
       else
