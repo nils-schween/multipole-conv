@@ -169,9 +169,9 @@ multipole_conv::Matrix<double> multipole_conv::basis_transformation(
                                                sign_lower_part * 2 * k) =
           coefficient(degree, order, 1, k);
     }
-    // m = 0 and s = 0
-    basis_transformation(degree, degree) = coefficient(degree, 0, 0, 0);
   }
+  // m = 0 and s = 0
+  basis_transformation(degree, degree) = coefficient(degree, 0, 0, 0);
   return basis_transformation;
 }
 
@@ -244,8 +244,12 @@ void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
 
 multipole_conv::Matrix<double> multipole_conv::invert_basis_transformation(
     const Matrix<double>& trans_mat) {
-  Matrix<double> inverse(trans_mat.rows());
   size_t degree = (trans_mat.rows() - 1) / 2;
+  // For degree < 2 no computations are necessary 
+  if (degree < 2) {
+    return trans_mat.transpose();
+  }
+  Matrix<double> inverse(trans_mat.rows());
   Matrix<double> preconditioned =
       permutation(degree) * trans_mat * permutation((degree)).transpose();
   // Since the preconditioned transformation matrix has a different structure
