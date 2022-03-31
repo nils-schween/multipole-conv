@@ -14,8 +14,8 @@ template <typename T>
 void print_spherical_multipole_moments(const Matrix<T>& mat,
                                        const MPOptions& options) {
   std::size_t degree = (mat.rows() - 1) / 2;
-  if ((options & MPOptions::complex) !=
-      MPOptions::none) {
+  std::cout << "Spherical multipole moments\n\n";
+  if ((options & MPOptions::complex) != MPOptions::none) {
     std::cout << std::showpos;
     for (int order = degree, i = 0; i < mat.rows(); ++i, --order) {
       // std::size_t q_index = ((i > degree) ? -1 : 1) * order;
@@ -28,9 +28,12 @@ void print_spherical_multipole_moments(const Matrix<T>& mat,
         std::size_t p_index = (j > degree ? 1 : 0);
         std::size_t q_index = (j > degree ? j - degree : degree - j) - p_index;
         std::size_t r_index = degree - p_index - q_index;
+	// only print elements unequal zero
+	if (current_element.real() != 0. || current_element.imag() != 0.) {
         std::cout << " " << current_element.real() << current_element.imag()
                   << "i"
                   << " M_" << p_index << "," << q_index << "," << r_index;
+	}
       }
       std::cout << "\n";
     }
@@ -45,50 +48,94 @@ void print_spherical_multipole_moments(const Matrix<T>& mat,
         std::size_t p_index = (j > degree ? 1 : 0);
         std::size_t q_index = (j > degree ? j - degree : degree - j) - p_index;
         std::size_t r_index = degree - p_index - q_index;
+	if( mat(i,j) != 0.) {
         std::cout << " " << mat(i, j) << " M_" << p_index << "," << q_index
                   << "," << r_index;
+	}
       }
       std::cout << "\n";
     }
   }
+  std::cout << "\n";
 }
 
 template <typename T>
 void print_cartesian_multipole_moments(const Matrix<T>& mat,
                                        const MPOptions& options) {
   std::size_t degree = (mat.rows() - 1) / 2;
-
-  for (std::size_t i = 0; i < mat.rows(); ++i ) {
+  std::cout << "Cartesian multipole moments (independent components = "
+               "multipole basis functions)\n\n";
+  for (std::size_t i = 0; i < mat.rows(); ++i) {
     std::size_t p_index = (i > degree ? 1 : 0);
     std::size_t q_index = (i > degree ? i - degree : degree - i) - p_index;
     std::size_t r_index = degree - p_index - q_index;
-    std::cout << std::showpos;
     std::cout << "M_" << p_index << "," << q_index << "," << r_index << " =";
-    if((options &  MPOptions::complex) != MPOptions::none) {
-      for(int order = degree, j = 0; j < mat.columns(); ++j, --order) {
-	std::complex<double> current_element {mat(i,j)};
-	std::cout << " " << current_element.real() << current_element.imag()
-		  << "i"
-		  << " rho^" << order << "_" << degree;
+    if ((options & MPOptions::complex) != MPOptions::none) {
+      std::cout << std::showpos;
+      for (int order = degree, j = 0; j < mat.columns(); ++j, --order) {
+        std::complex<double> current_element{mat(i, j)};
+	// only print non zero elements
+	if (current_element.real() != 0. || current_element.imag() != 0.) {
+        std::cout << " " << current_element.real() << current_element.imag()
+                  << "i"
+                  << " rho^" << order << "_" << degree;
+	}
       }
-    }
-    else {
-      for(int order = degree, j = 0; j < mat.columns(); ++j, --order) {
-	std::size_t m = ((j > degree) ? -1 : 1) * order;
-	std::size_t s = (j > degree) ? 1 : 0;
+    } else {
+      for (int order = degree, j = 0; j < mat.columns(); ++j, --order) {
+        std::size_t m = ((j > degree) ? -1 : 1) * order;
+        std::size_t s = (j > degree) ? 1 : 0;
+	if( mat(i,j) != 0.) {
+        std::cout << " " << mat(i, j) << " rho_" << degree << "," << m << ","
+                  << s;
+	}
       }
     }
     std::cout << "\n";
   }
+  std::cout << "\n";
 }
-
-
-
 
 template <typename T>
 void print_dependent_components(const Matrix<T>& mat,
                                 const MPOptions& options) {
-  mat.print();
+  std::cout << "Cartesian multipole moments (dependent components)\n\n";
+  std::size_t degree = (mat.columns() - 1) / 2;
+  // Because of the ordering of the dependent components the for loops are more
+  // complicated
+  for (std::size_t order = degree, r_index = 0, row_idx = 0; order > 1;
+       --order, ++r_index) {
+    for (std::size_t p_index = order; p_index > 1; --p_index, ++row_idx) {
+      std::size_t q_index = degree - p_index - r_index;
+      std::cout << "M_" << p_index << "," << q_index << "," << r_index << " =";
+      if ((options & MPOptions::complex) != MPOptions::none) {
+        std::cout << std::showpos;
+        for (int order_spm = degree, column_idx = 0; column_idx < mat.columns();
+             ++column_idx, --order_spm) {
+          std::complex<double> current_element{mat(row_idx, column_idx)};
+	  // only print non-zero elements
+	  if (current_element.real() != 0. || current_element.imag() != 0.) {
+          std::cout << " " << current_element.real() << current_element.imag()
+                    << "i"
+                    << " rho^" << order_spm << "_" << degree;
+	  }
+        }
+      } else {
+        for (int order_spm = degree, column_idx = 0; column_idx < mat.columns();
+             ++column_idx, --order_spm) {
+          std::size_t m = ((column_idx > degree) ? -1 : 1) * order_spm;
+          std::size_t s = (column_idx > degree) ? 1 : 0;
+	  if ( mat(row_idx, column_idx) != 0.) {
+          std::cout << " " << mat(row_idx, column_idx) << " rho_" << degree
+                    << "," << m << "," << s;
+	  }
+        }
+      }
+      std::cout << "\n";
+    }
+  }
+  std::cout << "\n";
 }
-}
+
+}  // namespace multipole_conv
 #endif
