@@ -8,7 +8,8 @@ add_subdirectory(src)
 
 add_executable(multipole-conv src/multipole-conv.cpp)
  # inherits the include/ directory from multipole_conv_funcs
-target_link_libraries(multipole-conv PRIVATE multipole_conv_funcs matrix_operations)
+ target_link_libraries(multipole-conv PRIVATE multipole_conv_funcs
+   matrix_operations command_line_parser)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)

@@ -8,3 +8,10 @@ add_library(multipole_conv_funcs STATIC multipole_conv_funcs.cpp
   ../include/multipole_conv_funcs.h)
 # inherits include directory from math 
 target_link_libraries(multipole_conv_funcs PUBLIC math) 
+
+find_package(Boost REQUIRED COMPONENTS
+             program_options)
+add_library(command_line_parser STATIC command_line_parser.cpp
+  ../include/command_line_parser.h)
+target_include_directories(command_line_parser PUBLIC ../include/)
+target_link_libraries(command_line_parser Boost::program_options)

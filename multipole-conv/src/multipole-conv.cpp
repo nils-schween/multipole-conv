@@ -2,7 +2,9 @@
 #include <complex>
 #include <iostream>
 #include <vector>
+#include <utility>
 
+#include "command_line_parser.h"
 #include "conventions.h"
 #include "math.h"
 #include "matrix.h"
@@ -15,9 +17,10 @@ using namespace multipole_conv;
 
 int main(int argc, char *argv[]) {
   // CMP = Cartesian multipole moment; SMP = spherical multipole moment
-  MPOptions options = conventions::jackson;
-  std::size_t degree = 2;
-  std::cout << options << "\n";
+  std::pair<std::size_t, MPOptions> cmd_line_arguments = cmd_parser(argc, argv);
+  MPOptions options = cmd_line_arguments.second;
+  std::size_t degree = cmd_line_arguments.first;
+  std::cout << "\n" << options << "\n";
     
   if ((options & MPOptions::cartesian) != MPOptions::none) {  // CMPs
     if ((options & MPOptions::complex) != MPOptions::none) {
