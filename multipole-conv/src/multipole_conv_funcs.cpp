@@ -56,16 +56,6 @@ multipole_conv::Matrix<double> multipole_conv::norms_complex_sph(
   return res;
 }
 
-multipole_conv::Matrix<double> multipole_conv::norms_sph(
-    size_t degree, multipole_conv::MPOptions options) {
-  Matrix<double> res{2 * degree + 1};
-  if ((options & MPOptions::complex) != MPOptions::none)
-    res = norms_complex_sph(degree);
-  else
-    res = norms_real_sph(degree);
-  return res;
-}
-
 multipole_conv::Matrix<double> multipole_conv::addition_theorem_factor(
     std::size_t degree, multipole_conv::MPOptions options) {
   Matrix<double> add_thm_factor(2 * degree + 1);
