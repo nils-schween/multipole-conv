@@ -55,5 +55,18 @@ Matrix<double> invert_basis_transformation(const Matrix<double>& trans_mat);
 
 // Compute the dependent components of Cartesian multipole moment
 Matrix<double> dependent_components(Matrix<double>& multipole_basis_mat);
+
+// CMP = Cartesian multipole moment; SMP = spherical multipole moment
+Matrix<std::complex<double>> pipeline_cmplx_spm(MPOptions options,
+                                                std::size_t degree);
+
+Matrix<double> pipeline_real_smp(MPOptions options, std::size_t degree);
+
+Matrix<std::complex<double>> pipeline_cmp_cmplx_smp(MPOptions options,
+                                                    std::size_t degree);
+
+Matrix<double> pipeline_cmp_real_smp(MPOptions options, std::size_t degree);
+
+
 }  // namespace multipole_conv
 #endif

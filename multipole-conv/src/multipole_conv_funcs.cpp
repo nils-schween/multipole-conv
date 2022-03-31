@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "math.h"
 #include "matrix.h"
+#include "matrix_operations.h"
 #include "options.h"
 
 using std::size_t;
@@ -325,4 +326,97 @@ multipole_conv::Matrix<double> multipole_conv::dependent_components(
     }
   }
   return dep_comps;
+// CMP = Cartesian multipole moment; SMP = spherical multipole moment
+multipole_conv::Matrix<std::complex<double>> multipole_conv::pipeline_cmplx_spm(
+    MPOptions options, std::size_t degree) {
+  Matrix<std::complex<double>> basis_trans =
+      convert_real_to_complex(basis_transformation(degree));
+  // Transform the real solid harmonics to complex solid harmonics
+  // The transformation is only defined for normalised solid harmonics
+  basis_trans = norms_real_sph(degree) * basis_trans;
+  basis_trans = real_sph_to_complex(degree) * basis_trans;
+
+  if ((options & MPOptions::complex_conjugate) != MPOptions::none)
+    basis_trans = basis_trans.conjugate();
+
+  // Remove normalisation if not set
+  if ((options & MPOptions::normalisation) == MPOptions::none)
+    basis_trans = inverse_diagonal(norms_complex_sph(degree)) * basis_trans;
+
+  if ((options & MPOptions::remove_condon_shortley_phase) != MPOptions::none)
+    basis_trans = condon_shortley_phase(degree) * basis_trans;
+
+  if ((options & MPOptions::include_addition_theorem) != MPOptions::none)
+    basis_trans = addition_theorem_factor(degree, options) * basis_trans;
+  return basis_trans;
+}
+
+multipole_conv::Matrix<double> multipole_conv::pipeline_real_smp(
+    MPOptions options, std::size_t degree) {
+  Matrix<double> basis_trans = basis_transformation(degree);
+  if ((options & MPOptions::normalisation) != MPOptions::none)
+    basis_trans = norms_real_sph(degree) * basis_trans;
+
+  if ((options & MPOptions::remove_condon_shortley_phase) != MPOptions::none)
+    basis_trans = condon_shortley_phase(degree) * basis_trans;
+
+  if ((options & MPOptions::include_addition_theorem) != MPOptions::none)
+    basis_trans = addition_theorem_factor(degree, options) * basis_trans;
+  return basis_trans;
+}
+
+multipole_conv::Matrix<std::complex<double>>
+multipole_conv::pipeline_cmp_cmplx_smp(MPOptions options, std::size_t degree) {
+  Matrix<double> basis_trans = basis_transformation(degree);
+  // For later transformation from real to complex solid harmonics, the real
+  // solid harmonics must be normalised
+  basis_trans = norms_real_sph(degree) * basis_trans;
+  Matrix<std::complex<double>> inv_trans =
+      convert_real_to_complex(invert_basis_transformation(basis_trans));
+  basis_trans = 0;  // free memory
+
+  // Transform the real solid harmonics to complex solid harmonics
+  // CMP = INV_BASIS_TRANSFORMATION * U^dagger (U*SMP)
+  inv_trans = inv_trans * real_sph_to_complex(degree).transpose().conjugate();
+
+  if ((options & MPOptions::complex_conjugate) != MPOptions::none)
+    inv_trans = inv_trans.conjugate();
+  
+  // Remove the normalisation if not set
+  // CMP = INV_BASIS_TRANSFORMATION * U^dagger * N * (N^(-1)*U*SMP)
+  if ((options & MPOptions::normalisation) == MPOptions::none)
+    inv_trans = inv_trans * norms_complex_sph(degree);
+
+  // CONDON_SHORTLEY_PHASE^(-1) = CONDON_SHORTLEY_PHASE
+  if ((options & MPOptions::remove_condon_shortley_phase) != MPOptions::none)
+    inv_trans = inv_trans * condon_shortley_phase(degree);
+
+  if ((options & MPOptions::include_addition_theorem) != MPOptions::none)
+    inv_trans =
+        inv_trans * inverse_diagonal(addition_theorem_factor(degree, options));
+
+  if ((options & MPOptions::include_l_factorial) != MPOptions::none)
+    inv_trans = inv_trans / factorial(degree);
+
+  return inv_trans;
+}
+
+multipole_conv::Matrix<double> multipole_conv::pipeline_cmp_real_smp(
+    MPOptions options, std::size_t degree) {
+  Matrix<double> inv_trans =
+      invert_basis_transformation(basis_transformation(degree));
+  if ((options & MPOptions::normalisation) != MPOptions::none)
+    inv_trans = inv_trans * inverse_diagonal(norms_real_sph(degree));
+
+  // CONDON_SHORTLEY_PHASE^(-1) = CONDON_SHORTLEY_PHASE
+  if ((options & MPOptions::remove_condon_shortley_phase) != MPOptions::none)
+    inv_trans = inv_trans * condon_shortley_phase(degree);
+
+  if ((options & MPOptions::include_addition_theorem) != MPOptions::none)
+    inv_trans =
+        inv_trans * inverse_diagonal(addition_theorem_factor(degree, options));
+
+  if ((options & MPOptions::include_l_factorial) != MPOptions::none)
+    inv_trans = inv_trans / factorial(degree);
+  return inv_trans;
 }
