@@ -29,9 +29,10 @@ std::pair<std::size_t, MPOptions> cmd_parser(int argc, char *argv[]) {
   using namespace boost::program_options;
   std::pair<std::size_t, MPOptions> cmd_options{0, MPOptions::none};
   try {
-    options_description desc{"Multipole Converter\nOptions"};
-    desc.add_options()("help,h", "Help screen")(
-        "degree,d", value<int>()->default_value(2),
+    options_description desc{"Options"};
+    desc.add_options()("help,h", "Help screen")("version,v",
+                                                "Displays the version number.")(
+        "degree,d", value<int>(),
         "Degree of spherical or Cartesian multipole moments.")(
         "convention,c", value<std::string>(),
         "Conventions are predefined set of options. Possible values are "
@@ -59,7 +60,10 @@ std::pair<std::size_t, MPOptions> cmd_parser(int argc, char *argv[]) {
     variables_map vm;
     store(parse_command_line(argc, argv, desc), vm);
 
-    if (vm.count("help")) std::cout << desc << '\n';
+    if (vm.count("help")) {
+      std::cout << desc << '\n';
+      return cmd_options;
+    }
     if (vm.count("version")) {
       std::cout << "Multipole Converter Version " << version_major << "."
                 << version_minor << '\n';
@@ -70,6 +74,7 @@ std::pair<std::size_t, MPOptions> cmd_parser(int argc, char *argv[]) {
           << "The degree of the (spherical/Cartesian) multipole moment is: "
           << vm["degree"].as<int>() << '\n';
       cmd_options.first = static_cast<std::size_t>(vm["degree"].as<int>());
+      cmd_options.second = cmd_options.second | MPOptions::default_case;
     }
     if (vm.count("convention"))
       cmd_options.second = set_convention(vm["convention"].as<std::string>());

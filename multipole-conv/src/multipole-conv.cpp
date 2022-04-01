@@ -21,8 +21,7 @@ int main(int argc, char *argv[]) {
   MPOptions options = cmd_line_arguments.second;
   std::size_t degree = cmd_line_arguments.first;
   if (options == MPOptions::none)
-    std::cout << "No options were set. Default: Real solid harmonics (without "
-                 "normalisation) are computed.\n\n";
+    return 0;
   else
     std::cout << options << "\n";
 

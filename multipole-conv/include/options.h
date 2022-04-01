@@ -18,8 +18,10 @@ enum class MPOptions {
   cartesian = 1 << 6,               // cartesian mps in terms of spherical mps
   dependent_components = 1 << 7,    // compute the dependent components of the
                                     // cartesian mps as well
-  include_l_factorial = 1 << 8     //  Include l factorial in the definition of
+  include_l_factorial = 1 << 8,     //  Include l factorial in the definition of
                                     //  the cartesian mps
+  default_case = 1 << 9		    // no options set: real solid harmonics
+				    // (without normalisation)
 };
 
 constexpr MPOptions operator|(MPOptions f1, MPOptions f2) {
