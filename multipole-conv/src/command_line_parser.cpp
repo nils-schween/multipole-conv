@@ -7,6 +7,7 @@
 
 #include "conventions.h"
 #include "options.h"
+#include "version.h"
 
 namespace multipole_conv {
 MPOptions set_convention(const std::string &convention) {
@@ -59,6 +60,11 @@ std::pair<std::size_t, MPOptions> cmd_parser(int argc, char *argv[]) {
     store(parse_command_line(argc, argv, desc), vm);
 
     if (vm.count("help")) std::cout << desc << '\n';
+    if (vm.count("version")) {
+      std::cout << "Multipole Converter Version " << version_major << "."
+                << version_minor << '\n';
+      return cmd_options;
+    }
     if (vm.count("degree")) {
       std::cout
           << "The degree of the (spherical/Cartesian) multipole moment is: "

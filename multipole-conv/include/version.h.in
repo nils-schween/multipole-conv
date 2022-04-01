@@ -1,0 +1,4 @@
+namespace multipole_conv {
+constexpr unsigned int version_major {@multipole-conv_VERSION_MAJOR@};
+constexpr unsigned int version_minor {@multipole-conv_VERSION_MINOR@};
+}
