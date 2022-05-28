@@ -19,7 +19,7 @@ void print_spherical_multipole_moments(const Matrix<T>& mat,
     std::cout << std::showpos;
     for (int order = degree, i = 0; i < mat.rows(); ++i, --order) {
       // std::size_t q_index = ((i > degree) ? -1 : 1) * order;
-      std::cout << "rho^" << std::setw(3) << std::left << order << "_" << degree
+      std::cout << "q^" << std::setw(3) << std::left << order << "_" << degree
                 << " =";
       for (std::size_t j = 0; j < mat.columns(); ++j) {
         // it is not possible to call mat(i,j).real/imag
@@ -32,7 +32,7 @@ void print_spherical_multipole_moments(const Matrix<T>& mat,
 	if (current_element.real() != 0. || current_element.imag() != 0.) {
         std::cout << " " << current_element.real() << current_element.imag()
                   << "i"
-                  << " M_" << p_index << "," << q_index << "," << r_index;
+                  << " Q_" << p_index << "," << q_index << "," << r_index;
 	}
       }
       std::cout << "\n";
@@ -43,13 +43,13 @@ void print_spherical_multipole_moments(const Matrix<T>& mat,
       std::size_t s = (i > degree) ? 1 : 0;
       // no negative order for real solid harmonics (i.e. m >= 0)
       std::size_t m = ((i > degree) ? -1 : 1) * order;
-      std::cout << "rho_" << degree << "," << m << "," << s << " = ";
+      std::cout << "q_" << degree << "," << m << "," << s << " = ";
       for (std::size_t j = 0; j < mat.columns(); ++j) {
         std::size_t p_index = (j > degree ? 1 : 0);
         std::size_t q_index = (j > degree ? j - degree : degree - j) - p_index;
         std::size_t r_index = degree - p_index - q_index;
 	if( mat(i,j) != 0.) {
-        std::cout << " " << mat(i, j) << " M_" << p_index << "," << q_index
+        std::cout << " " << mat(i, j) << " Q_" << p_index << "," << q_index
                   << "," << r_index;
 	}
       }
@@ -69,7 +69,7 @@ void print_cartesian_multipole_moments(const Matrix<T>& mat,
     std::size_t p_index = (i > degree ? 1 : 0);
     std::size_t q_index = (i > degree ? i - degree : degree - i) - p_index;
     std::size_t r_index = degree - p_index - q_index;
-    std::cout << "M_" << p_index << "," << q_index << "," << r_index << " =";
+    std::cout << "Q_" << p_index << "," << q_index << "," << r_index << " =";
     if ((options & MPOptions::complex) != MPOptions::none) {
       std::cout << std::showpos;
       for (int order = degree, j = 0; j < mat.columns(); ++j, --order) {
@@ -78,7 +78,7 @@ void print_cartesian_multipole_moments(const Matrix<T>& mat,
 	if (current_element.real() != 0. || current_element.imag() != 0.) {
         std::cout << " " << current_element.real() << current_element.imag()
                   << "i"
-                  << " rho^" << order << "_" << degree;
+                  << " q^" << order << "_" << degree;
 	}
       }
     } else {
@@ -86,7 +86,7 @@ void print_cartesian_multipole_moments(const Matrix<T>& mat,
         std::size_t m = ((j > degree) ? -1 : 1) * order;
         std::size_t s = (j > degree) ? 1 : 0;
 	if( mat(i,j) != 0.) {
-        std::cout << " " << mat(i, j) << " rho_" << degree << "," << m << ","
+        std::cout << " " << mat(i, j) << " q_" << degree << "," << m << ","
                   << s;
 	}
       }
@@ -107,7 +107,7 @@ void print_dependent_components(const Matrix<T>& mat,
        --order, ++r_index) {
     for (std::size_t p_index = order; p_index > 1; --p_index, ++row_idx) {
       std::size_t q_index = degree - p_index - r_index;
-      std::cout << "M_" << p_index << "," << q_index << "," << r_index << " =";
+      std::cout << "Q_" << p_index << "," << q_index << "," << r_index << " =";
       if ((options & MPOptions::complex) != MPOptions::none) {
         std::cout << std::showpos;
         for (int order_spm = degree, column_idx = 0; column_idx < mat.columns();
@@ -117,7 +117,7 @@ void print_dependent_components(const Matrix<T>& mat,
 	  if (current_element.real() != 0. || current_element.imag() != 0.) {
           std::cout << " " << current_element.real() << current_element.imag()
                     << "i"
-                    << " rho^" << order_spm << "_" << degree;
+                    << " q^" << order_spm << "_" << degree;
 	  }
         }
       } else {
@@ -126,7 +126,7 @@ void print_dependent_components(const Matrix<T>& mat,
           std::size_t m = ((column_idx > degree) ? -1 : 1) * order_spm;
           std::size_t s = (column_idx > degree) ? 1 : 0;
 	  if ( mat(row_idx, column_idx) != 0.) {
-          std::cout << " " << mat(row_idx, column_idx) << " rho_" << degree
+          std::cout << " " << mat(row_idx, column_idx) << " q_" << degree
                     << "," << m << "," << s;
 	  }
         }
