@@ -72,11 +72,18 @@ multipole_conv::Matrix<double> multipole_conv::addition_theorem_factor(
 
   } else {
     for (size_t order = degree, i = 0; i < degree; ++i, --order) {
-      if ((options & MPOptions::split_addition_theorem) != MPOptions::none)
+      if ((options & MPOptions::split_addition_theorem) != MPOptions::none) {
         factor = std::sqrt(2 * factorial(degree - order) /
                            factorial(degree + order));
-      else
+	// the addition thereom is different for complex spherical harmonics
+	if ((options & MPOptions::complex) != MPOptions::none)
+	  factor /= std::sqrt(2);
+      }
+      else {
         factor = 2 * factorial(degree - order) / factorial(degree + order);
+	if ((options & MPOptions::complex) != MPOptions::none)
+	  factor /= 2;
+      }
 
       add_thm_factor(i, i) = factor;
       add_thm_factor(2 * degree - i, 2 * degree - i) = add_thm_factor(i, i);
