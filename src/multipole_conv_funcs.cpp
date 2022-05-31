@@ -61,34 +61,43 @@ multipole_conv::Matrix<double> multipole_conv::addition_theorem_factor(
     std::size_t degree, multipole_conv::MPOptions options) {
   Matrix<double> add_thm_factor(2 * degree + 1);
   double factor = 1.;
+  // the addition theorem factor is the same for real and complex spherical
+  // harmonics if they are normalised
   if ((options & MPOptions::normalisation) != MPOptions::none) {
     // If splitted, take the square of the factor
     if ((options & MPOptions::split_addition_theorem) != MPOptions::none)
-      factor = std::sqrt((2 * degree + 1) / (4 * pi));
+      factor = std::sqrt((4 * pi) / (2 * degree + 1));
     else
-      factor = (2 * degree + 1) / (4 * pi);
+      factor = (4 * pi) / (2 * degree + 1);
     // fill diagonal with factor
     for (size_t i = 0; i < 2 * degree + 1; ++i) add_thm_factor(i, i) = factor;
 
   } else {
-    for (size_t order = degree, i = 0; i < degree; ++i, --order) {
-      if ((options & MPOptions::split_addition_theorem) != MPOptions::none) {
-        factor = std::sqrt(2 * factorial(degree - order) /
-                           factorial(degree + order));
-	// the addition thereom is different for complex spherical harmonics
-	if ((options & MPOptions::complex) != MPOptions::none)
-	  factor /= std::sqrt(2);
-      }
-      else {
-        factor = 2 * factorial(degree - order) / factorial(degree + order);
-	if ((options & MPOptions::complex) != MPOptions::none)
-	  factor /= 2;
-      }
+    // the addition theorem factor is different for real and complex spherical
+    // harmonics if they are **not** normalised
+    if ((options & MPOptions::complex) != MPOptions::none) {
+      for (size_t order = degree, i = 0; i <= 2 * degree; ++i, --order) {
+        if ((options & MPOptions::split_addition_theorem) != MPOptions::none)
+          factor =
+              std::sqrt(factorial(degree - order) / factorial(degree + order));
+        else
+          factor = factorial(degree - order) / factorial(degree + order);
 
-      add_thm_factor(i, i) = factor;
-      add_thm_factor(2 * degree - i, 2 * degree - i) = add_thm_factor(i, i);
+        add_thm_factor(i, i) = factor;
+      }
+    } else {
+      for (size_t order = degree, i = 0; i < degree; ++i, --order) {
+        if ((options & MPOptions::split_addition_theorem) != MPOptions::none)
+          factor = std::sqrt(2 * factorial(degree - order) /
+                             factorial(degree + order));
+        else
+          factor = 2 * factorial(degree - order) / factorial(degree + order);
+
+        add_thm_factor(i, i) = factor;
+        add_thm_factor(2 * degree - i, 2 * degree - i) = add_thm_factor(i, i);
+      }
+      add_thm_factor(degree, degree) = 1;
     }
-    add_thm_factor(degree, degree) = 1;
   }
   return add_thm_factor;
 }
@@ -252,7 +261,7 @@ void inv_upper_triangular_mat(size_t row_idx, size_t column_idx, size_t size,
 multipole_conv::Matrix<double> multipole_conv::invert_basis_transformation(
     const Matrix<double>& trans_mat) {
   size_t degree = (trans_mat.rows() - 1) / 2;
-  // For degree < 2 no computations are necessary 
+  // For degree < 2 no computations are necessary
   if (degree < 2) {
     return trans_mat.transpose();
   }
@@ -360,7 +369,7 @@ multipole_conv::pipeline_cmp_cmplx_smp(MPOptions options, std::size_t degree) {
 
   if ((options & MPOptions::complex_conjugate) != MPOptions::none)
     inv_trans = inv_trans.conjugate();
-  
+
   // Remove the normalisation if not set
   // CMP = INV_BASIS_TRANSFORMATION * U^dagger * N * (N^(-1)*U*SMP)
   if ((options & MPOptions::normalisation) == MPOptions::none)
