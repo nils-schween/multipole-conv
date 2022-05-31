@@ -8,7 +8,8 @@ constexpr MPOptions solid_harmonics =
     MPOptions::complex | MPOptions::normalisation;
 
 constexpr MPOptions jackson = MPOptions::complex | MPOptions::normalisation |
-                              MPOptions::complex_conjugate;
+                              MPOptions::complex_conjugate |
+                              MPOptions::dependent_components;
 constexpr MPOptions johnston =
     MPOptions::cartesian | MPOptions::include_addition_theorem |
     MPOptions::remove_condon_shortley_phase | MPOptions::include_l_factorial |
