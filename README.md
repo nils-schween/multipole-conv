@@ -41,22 +41,25 @@ Cartesian multipole moments to get the $q\_{l}^{m}$ you are looking for.
 
 ## Compilation
 
-The `multipole-conv` tool needs an additional library to be compiled, namely
-the `boost` library. This library is contained in the packages repositories of
-must Linux distributions. In case, you have not installed it yet, you can
-install it with the following commands:
+The `multipole-conv` tool needs an additional library to be compiled, namely the
+`boost` library. This library is contained in the repositories of most Linux
+distributions. In case, you have not installed it yet, you can install it with
+the following commands:
 
 Ubuntu/Debian
+
 ```shell
 sudo apt-get install libboost-all-dev
 ```
 
 Arch Linux/Manjaro
+
 ```shell
 sudo pacman -Syu boost
 ```
 
-In a next step clone the repository and call CMake and make, i.e.
+In a next step, clone the repository and call CMake and make, i.e.
+
 ```shell
 git clone https://github.com/nils-schween/multipole-conv.git
 cd multipole-conv
@@ -72,6 +75,7 @@ binary.
 
 `multipole-conv` is a command-line tool. The call `./multipole-conv -h` provides
 you with an overview of all possible options, i.e.
+
 ```
 Options:
   -h [ --help ]              Help screen
@@ -97,32 +101,34 @@ Options:
   --include-l-factorial arg  Include l! from the Taylor expansion in the
                              definition of the Cartesian multipole moment
 ```
-To get started the most important options are `--degree, -d`, `--convention,c`
+
+To get started, the most important options are `--degree, -d`, `--convention,c`
 and `--cartesian`.
 
-The `-d` options expects an integer as argument and corresponds to the order of
+The `-d` option expects an integer as argument and corresponds to the order of
 the two multipole expansions. For example, if `multipole-conv` is called with
 the option `-d 2`, then it will provide you with the formulae which relate the
 quadrupole moment $Q\_{ij}^{(2)}$ with the corresponding spherical multipole
 moments of degree two, namely $q\_{2}^{m}$ where $m \in \\{-2,-1,0,1,2\\}$.
 
-The `-c` options expects a string as argument. All possible values are listed in
+The `-c` option expects a string as argument. All possible values are listed in
 the help text. This option is meant to ease the handling of the available
 options. Every "convention" represents a predefined collection of options. For
 example, the convention `jackson` represents a combination of options such that
 the definition of the (Cartesian) multipole moments and of the spherical
 multipole moments are in agreement with the definitions in Jackson's textbook
-"Classical Electrodynamics".
+"*Classical Electrodynamics*".
 
-The `--cartesian` option expects either 0 or 1. It is a switch. If it is one,
-then the (Cartesian) multipole moments are given as a sum over the spherical
-multipole moments. And if it is 0 (which is the default), the `multipole-conv`
-tool provides the user with expressions of the spherical multipole moments in
-terms of the (Cartesian) multipole moments.
+The `--cartesian` option expects either 0 or 1. If it is one, then the
+(Cartesian) multipole moments are given as a sum over the spherical multipole
+moments. And if it is 0 (which is the default), the `multipole-conv` tool
+provides the user with expressions of the spherical multipole moments in terms
+of the (Cartesian) multipole moments.
 
 The other options are explained in detail in the section [Options](#options).
 
 An example call of `multipole-conv` would be
+
 ``` shell
 ./multipole-conv -d 2 -c jackson
 ```
@@ -140,17 +146,17 @@ q^+0 _2 = +0.315392-0i Q_0,0,2
 q^-1 _2 = +0+0.257516i Q_0,1,1 +0.257516-0i Q_1,0,1
 q^-2 _2 = -0.257516-0i Q_0,2,0 -0.128758-0i Q_0,0,2 +0+0.257516i Q_1,1,0
 ```
+
 On the left-hand side the spherical multipole moments $q\_{l}^{m}$ show up and
-the right-hand side the (Cartesian) multipole moments. If you had computed the
-quadrupole moment of your application, namely $Q\_{ij}^{(2)}$, you could plug in
-your results into the above formulae and would be able to convert the
-(Cartesian) multipole moments to the spherical multipole moments.
+on the right-hand side the (Cartesian) multipole moments. If you computed the
+quadrupole moment, namely $Q\_{ij}^{(2)}$, you could plug in your results into
+the above formulae to convert the (Cartesian) multipole moments to the spherical
+multipole moments.
 
 Note that the $Q$'s on the right-hand side have three indices (instead of the
 two indices, which you would expect the quadrupole moment to have). These three
-indices have the following background: The tensors
-$Q\_{i\_{1} \cdots i\_{l}}^{(l)}$ are symmetric.
-This means that you can interchange two arbitrary
+indices have the following background: The tensors 
+$Q\_{i\_{1} \cdots i\_{l}}^{(l)}$ are symmetric. This means that you can interchange two arbitrary
 indices and you get the same component. For example,
 
 $$
@@ -175,7 +181,7 @@ Q\_{110}^{(2)} &= Q\_{12}^{(2)}
 $$
 
 Another important point to note is that on the right-hand side of the output
-there are no components of the (Cartesian) multipole moments with $p > 1$. This
+there are no components of the (Cartesian) multipole moment with $p > 1$. This
 means that it is not necessary to compute all the components of the (Cartesian)
 multipole moments. It is enough to compute the ones with $p = 0$ or $p=1$. The
 reason for this is that the tensors $Q\_{i\_{1} \cdots i\_{l}}$ are traceless,
@@ -187,11 +193,11 @@ $$
 $$
 
 and it results in a set of equations which allows to express all the components
-of the tensors $Q^{(l)} with $p > 1$ in terms of the components with $p=0$ or
+of the tensors $Q^{(l)}$ with $p > 1$ in terms of the components with $p=0$ or
 $p=1$.
 
 This becomes clear when an example is considered: In Jackson's textbook
-"Classical Mechanics" you find the following equation for $q\_{2}^{2}$
+"*Classical Mechanics*" you find the following equation for $q\_{2}^{2}$
 (corresponding to the first line of the above output)
 
 $$
@@ -216,7 +222,9 @@ obtained with the call
 ``` shell
 ./multipole-conv -d 2 -c jackson --cartesian 1
 ```
+
 and it is
+
 ```
 Cartesian multipole moments (independent components = multipole basis functions)
 
@@ -230,11 +238,12 @@ Cartesian multipole moments (dependent components)
 
 Q_2,0,0 = +1.94163+0i q^+2_2 -1.58533+0i q^+0_2 +1.94163+0i q^-2_2
 ```
-On the left-hand side we see the components of the quadrupole moment expressed
-in terms of the spherical multipole moments of degree two. For the components of
-the quadrupole moment the $p,q,r$ notation is used. The components with
-$p \leq 1$ are called independent components and the ones with $p > 1$ are
-called dependent components.
+
+We see the components of the quadrupole moment expressed in terms of the
+spherical multipole moments of degree two. For the components of the quadrupole
+moment the $p,q,r$ notation is used. The components with $p \leq 1$ are called
+independent components and the ones with $p > 1$ are called dependent
+components.
 
 **Note:** Currently, the `multipole-conv` command-line tool works without
 problems up to degree 15. Afterwards numerical problems appear and its results
@@ -258,6 +267,7 @@ functions, which are part of the definition of the spherical multipole moments.
 ```
 --complex and --complex-conjugate
 ```
+
 If **complex spherical harmonics** are used the spherical multipole expansion is
 
 $$
@@ -286,21 +296,21 @@ $$
 If complex spherical harmonics are used in the multipole expansion, then the
 spherical multipole moment's definition contains complex-conjugate spherical
 harmonics and it is necessary to add the option `--complex 1` and
-`--complex-conjugate 1` . If this options are not set, then the real spherical
-harmonics are used, because they are contained in definition of the real
-spherical multipole moments $q\_{lms}$.
+`--complex-conjugate 1` . If these options are not set, real spherical harmonics
+are used, because they are contained in definition of the real spherical
+multipole moments $q\_{lms}$.
 
 ```
 --normalisation
 ```
 
 Real and complex spherical harmonics can be normalised or not. It they are
-normalised, as in the case as in the definitions of $q\_{m}^{l}$ and $q\_{lms}$,
+normalised, as in the case of the definitions of $q\_{l}^{m}$ and $q\_{lms}$,
 then the option `--normalisation 1` must be included in the call of the
 `multipole-conv` tool.
 
 We denote the **complex spherical harmonics without normalisation** with
-$\tilde{Y}\_{l}^{m}$. If these are used in the multipole expansion, then we get
+$\tilde{Y}\_{l}^{m}$. If these are used in the multipole expansion, we get
 
 $$
 4\pi \epsilon\_0 \phi(\mathbf{r}) = \sum\_{l=0}^{\infty} \sum\_{m=-l}^{l} \frac{(l-m)!}{(l+m)!} \frac{1}{r^{l + 1}} \tilde{q}\_{l}^{m} \tilde{Y}\_{l}^{m}(\theta, \varphi)
@@ -323,16 +333,16 @@ $$
 \tilde{q}\_{lms} \equiv \int \rho(\mathbf{r}') r'^{l} \tilde{Y}\_{lms}(\theta', \varphi') \mathrm{d}r'^3
 $$
 
-The default value of `--normalisation` is `0`. Moreover, when `./multipole-conv`
-is called with only `--degree` (or, alternatively `-d`), then the above
-multipole expansion with its definition of $\tilde{q}\_{lms}$ is used.
+The default value of the option `--normalisation` is `0`. Moreover, when
+`./multipole-conv` is called with only `--degree` (or, alternatively `-d`), then
+the above multipole expansion with its definition of $\tilde{q}\_{lms}$ is used.
 
 ```
 --include-addition-theorem
 ```
 
 In all four versions of the spherical multipole expansion there is an additional
-numerical factor (e.g. $4\pi/(2l + 1)) right after the summation symbols. This
+numerical factor (e.g. $4\pi/(2l + 1)$) right after the summation symbols. This
 factor is a consequence of the [addition theorem for spherical
 harmonics](https://en.wikipedia.org/wiki/Spherical_harmonics#Addition_theorem).
 Some authors include it in their definition of the spherical multipole moments.
@@ -350,7 +360,8 @@ $$
 
 and its square root is then included in the definition of the spherical
 multipole moment. If this is the case, `multipole-conv` should be called with
-`--split-addition-theorem 1`. Its default value is `0`.
+`--include-addition-theorem 1 --split-addition-theorem 1`. Its default value is
+`0`.
 
 ```
 --remove_condon_shortley_phase
@@ -415,8 +426,8 @@ $$
 \end{align}
 $$
 
-as done by Johnston in his 1960 paper "Cartesian Tensor Scalar Product and
-Spherical Harmonic Expansions in Boltzmann's Equation". Note that Johnston
+as done by Johnston in his 1960 paper "*Cartesian Tensor Scalar Product and
+Spherical Harmonic Expansions in Boltzmann's Equation*". Note that Johnston
 defines $f\_{lms} \equiv (-1)^m \tilde{f}\_{lms}$. To express the components of
 the Cartesian tensors $F^{(l)}$ in terms of the $f\_{lms}$ you can use the
 convention `johnston`. For example, the call `./multipole-conv -d 2 -c johnston`
@@ -442,9 +453,9 @@ right set options, contact us.
 
 ### Basis transformation in the space of homogeneous and harmonic polynomials
 
-The space of homogeneous and harmonic polynomials of degree $(l)$ is denoted
-with $\mathcal{H}^{l}(\mathbb{R}^{3})$. A basis of this space are the solid
-harmonics of degree $l$, i.e.
+The space of homogeneous and harmonic polynomials of degree $l$ is denoted with
+$\mathcal{H}^{l}(\mathbb{R}^{3})$. A basis of this space are the solid harmonics
+of degree $l$, i.e.
 
 $$
 \mathcal{H}^l(\mathbb{R}^{3}) = \text{span}\\{r^l Y\_{l}^{m} \mid -l \leq m \leq l\\}
@@ -465,10 +476,10 @@ solid harmonics) in terms of the multipole basis functions.
 ## Usage as a library
 
 Maybe, you need to convert very often between spherical multipole moments and
-(Cartesian) multipole moments and you want do this in your program. In this
-case, you can use the `multipole-conv` as a library; just include the
-necessary headers in your code. If you have difficulties setting this up,
-contact us.
+(Cartesian) multipole moments (or vice versa) and you want do this in your
+program. In this case, you can use the `multipole-conv` as a library; just
+include the necessary headers in your code. If you have difficulties setting
+this up, contact us.
 
 ## multipole-conv in Python
 
