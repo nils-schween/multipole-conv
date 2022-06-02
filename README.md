@@ -450,7 +450,7 @@ $$
 \mathcal{H}^l(\mathbb{R}^{3}) = \text{span}\\{r^l Y\_{l}^{m} \mid -l \leq m \leq l\\}
 $$
 
-Another basis of this space are the multipole basis functions $M\_{pqr}^(l)$ as
+Another basis of this space are the multipole basis functions $M\_{pqr}^{(l)}$ as
 defined in our paper (see section [Cite our paper](#cite-our-paper)), i.e.
 
 $$
@@ -462,4 +462,30 @@ bases. If you call it with the convention `solid_harmonics` ( or
 `real_solid_harmonics`) it outputs expressions for the solid harmonics (real
 solid harmonics) in terms of the multipole basis functions.
 
-## 
+## Usage as a library
+
+Maybe, you need to convert very often between spherical multipole moments and
+(Cartesian) multipole moments and you want do this in your program. In this
+case, you can use the `multipole-conv` as a library; just include the
+necessary headers in your code. If you have difficulties setting this up,
+contact us.
+
+## multipole-conv in Python
+
+In case, your are programming in Python, but you still want to use the
+`multipole-conv` in your program, then you can use the Python code in the
+`multipole-conv.py` file in the `python` folder of this repository. This file is
+completely independent of the C++ code. It contains almost all the options,
+which are provided in the C++ code (currently it cannot compute dependent
+components of the Cartesian multipole moments). The functions which it contains
+are explained in our paper (see section [Cite our paper](#cite-our-paper)).
+
+## Cite our paper
+
+If you are using `multipole-conv` in your work, please include a reference to
+our paper
+
+```
+Information about our paper.
+```
+
