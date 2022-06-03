@@ -416,22 +416,30 @@ moment $Q^{(l)}$. If this is the case, `multipole-conv` should be called with
 ### Plasma physics
 
 The dynamics of a plasma are modelled with the Boltzmann equation. In some cases
-it can be useful to expand the distribution function $f$ in terms of spherical
+it can be useful to expand the distribution function $f$ using (real) spherical
 harmonics or in terms of Cartesian "tensors", namely
 
 $$
 \begin{align}
-	f(\mathbf{r}, \mathbf{p}, t) &= \sum\_{l=0}^{\infty} \sum\_{m=0}^{l} \sum\_{s=0}^{1} (-1)^m \tilde{f}\_{lms}(\mathbf{r},p,t) \tilde{Y}\_{lms}(\theta,\varphi) \\
+	f(\mathbf{r}, \mathbf{p}, t) &= \sum\_{l=0}^{\infty} \sum\_{m=0}^{l} \sum\_{s=0}^{1} (-1)^m \frac{2}{1 + \delta_0m} \frac{(l-m)!}{(l+m)!} \tilde{f}\_{lms}(\mathbf{r},p,t) \tilde{Y}\_{lms}(\theta,\varphi) \\
 	f(\mathbf{r}, \mathbf{p}, t) &= \sum\_{l=0}^{\infty} F\_{i\_{1} \cdots i\_{l}}^{(l)}(\mathbf{r},p,t) \frac{p^{i\_{1}} \cdots p^{i\_{l}}}{p^{l}}
 \end{align}
 $$
 
 as done by Johnston in his 1960 paper "*Cartesian Tensor Scalar Product and
-Spherical Harmonic Expansions in Boltzmann's Equation*". Note that Johnston
-defines $f\_{lms} \equiv (-1)^m \tilde{f}\_{lms}$. To express the components of
-the Cartesian tensors $F^{(l)}$ in terms of the $f\_{lms}$ you can use the
-convention `johnston`. For example, the call `./multipole-conv -d 2 -c johnston`
-produces
+Spherical Harmonic Expansions in Boltzmann's Equation*". Note that Johnston does
+not include the Condon-Shortley phase in the definition of the associated
+Legendre Polynomials nor in the definition of the real spherical harmonics
+(without normalisation) and, hence, we included it in the first equation to be
+consistent with our notation. In his paper he uses 
+
+$$
+f\_{lms} \equiv (-1)^m \frac{2}{1 + \delta_0m} \frac{(l-m)!}{(l+m)!} \tilde{f}\_{lms}
+$$
+
+To express the components of the Cartesian tensors $F^{(l)}$ in terms of the
+$f\_{lms}$ you can use the convention `johnston`. For example, the call
+`./multipole-conv -d 2 -c johnston` produces
 
 ``` 
 Cartesian multipole moments (independent components = multipole basis functions)
