@@ -1,3 +1,21 @@
+# Copyright (C) 2022 Schween, Nils W. and Reville, Brian
+#
+# This file is part of multipole-conv.
+#
+# multipole-conv is free software: you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# multipole-conv is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with multipole-conv. If not, see <https://www.gnu.org/licenses/>.
+
+
 import math
 import numpy as np
 
@@ -93,7 +111,7 @@ def addition_theorem(degree, normalised=False, real=True):
     """ Creates a diagonal matrix with the addition theorem factor. The addition
     theorem factor is different if the (real) spherical harmonics are not
     normalised. """
-    
+
     # factorial = (-1)**order * (0 + 1j)**order * (math.factorial(degree)) \
         #     * (math.factorial(degree - order))**2
     #  * math.prod(range(2 * degree - 1, 0, -2)

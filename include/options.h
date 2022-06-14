@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2022 Schween, Nils W. and Reville, Brian
+ *
+ * This file is part of multipole-conv.
+ *
+ * multipole-conv is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * multipole-conv is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with multipole-conv. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
@@ -5,7 +24,7 @@ namespace multipole_conv {
 enum class MPOptions {
   none = 0,
   complex = 1 << 0,        // use complex solid harmonics
-  complex_conjugate = 1 << 1,  // use the complex conjugate of the solid harmonics 
+  complex_conjugate = 1 << 1,  // use the complex conjugate of the solid harmonics
   normalisation = 1 << 2,  // normalise (real/complex) solid harmonics
   remove_condon_shortley_phase = 1 << 3,  // remove the condon shortley phase
   // include the addition theorem factor in the definition of the spherical

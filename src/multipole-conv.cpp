@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2022 Schween, Nils W. and Reville, Brian
+ *
+ * This file is part of multipole-conv.
+ *
+ * multipole-conv is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * multipole-conv is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with multipole-conv. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <cmath>
 #include <complex>
 #include <iostream>
@@ -21,8 +40,8 @@ int main(int argc, char *argv[]) {
   MPOptions options = cmd_line_arguments.second;
   std::size_t degree = cmd_line_arguments.first;
   if (options == MPOptions::none) {
-    std::cout << "Multipole converter.\nType \"multipole-conv -h\" to see the "
-                 "available options.";
+    std::cout << R"(Type "multipole-conv -h" to see the available options. )"
+              << "\n";
     return 0;
   } else {
     std::cout << options << "\n";
