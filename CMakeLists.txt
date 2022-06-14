@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.18.0)
+cmake_minimum_required(VERSION 3.13.0)
 
-project( multipole-conv VERSION 0.5 DESCRIPTION "A tool to convert between spherical mutlipole moments and Cartesian multipole moments." LANGUAGES CXX )
+project( multipole-conv VERSION 0.6 DESCRIPTION "A tool to convert between spherical mutlipole moments and Cartesian multipole moments." LANGUAGES CXX )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # necessary for the language server (e.g.
 # to recognise the include libraries)
