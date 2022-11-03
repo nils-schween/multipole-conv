@@ -1,6 +1,5 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-type: article
 authors:
   - family-names: "Schween"
     given-names: "Nils W."
@@ -8,13 +7,26 @@ authors:
   - family-names: "Reville"
     given-names: "Brian"
     orcid: "https://orcid.org/0000-0002-3778-1432"
-doi: 10.1017/S002237782200099X
-journal: "Journal of Plasma Physics"
-month: 10
-year: 2022
-issue: 5
-volume: 88
-title: "Converting between the Cartesian tensor and spherical harmonic expansion of solutions to the Boltzmann equation"
-pages: 905880510
-publisher: "Cambridge University Press"
-url: "https://doi.org/10.1017/S002237782200099X"
+title: "multipole-conv: A multipole converter"
+version: 0.6.0
+date-released: 2022-06-14
+url: "https://github.com/nils-schween/multipole-conv"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Schween"
+    given-names: "Nils W."
+    orcid: "https://orcid.org/0000-0003-0105-8733"
+  - family-names: "Reville"
+    given-names: "Brian"
+    orcid: "https://orcid.org/0000-0002-3778-1432"
+  doi: 10.1017/S002237782200099X
+  journal: "Journal of Plasma Physics"
+  start: 905880510
+  month: 10
+  year: 2022
+  issue: 5
+  volume: 88
+  title: "Converting between the Cartesian tensor and spherical harmonic expansion of solutions to the Boltzmann equation"
+  publisher:
+   name: "Cambridge University Press"
