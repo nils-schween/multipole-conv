@@ -505,6 +505,16 @@ If you are using `multipole-conv` in your work, please include a reference to
 our paper
 
 ```
-Information about our paper.
+@article{Schween_Converting_between_the_2022,
+author = {Schween, Nils W. and Reville, Brian},
+doi = {10.1017/S002237782200099X},
+journal = {Journal of Plasma Physics},
+month = {10},
+number = {5},
+pages = {905880510},
+title = {{Converting between the Cartesian tensor and spherical harmonic expansion of solutions to the Boltzmann equation}},
+volume = {88},
+year = {2022}
+}
 ```
 
