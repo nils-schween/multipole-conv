@@ -375,22 +375,25 @@ multipole_conv::Matrix<double> multipole_conv::pipeline_real_smp(
 multipole_conv::Matrix<std::complex<double>>
 multipole_conv::pipeline_cmp_cmplx_smp(MPOptions options, std::size_t degree) {
   Matrix<double> basis_trans = basis_transformation(degree);
-  // For later transformation from real to complex solid harmonics, the real
-  // solid harmonics must be normalised
-  basis_trans = norms_real_sph(degree) * basis_trans;
+  // Invert basis transformation
   Matrix<std::complex<double>> inv_trans =
       convert_real_to_complex(invert_basis_transformation(basis_trans));
   basis_trans = 0;  // free memory
 
+  // Before we transform from the real to the complex solid harmonics, the real
+  // solid harmonics must be normalised
+  // CMP = INV_BASIS_TRANSFORMATION * N^-1 * (N * SMP)
+  inv_trans = inv_trans * inverse_diagonal(norms_real_sph(degree));
+
   // Transform the real solid harmonics to complex solid harmonics
-  // CMP = INV_BASIS_TRANSFORMATION * U^dagger (U*SMP)
+  // CMP = INV_BASIS_TRANSFORMATION * N^-1 * U^dagger (U * N *SMP)
   inv_trans = inv_trans * real_sph_to_complex(degree).transpose().conjugate();
 
   if ((options & MPOptions::complex_conjugate) != MPOptions::none)
     inv_trans = inv_trans.conjugate();
 
-  // Remove the normalisation if not set
-  // CMP = INV_BASIS_TRANSFORMATION * U^dagger * N * (N^(-1)*U*SMP)
+  // Remove the normalisation (again) if not set
+  // CMP = INV_BASIS_TRANSFORMATION * N^{-1} * U^dagger * N * N^-1 * (U* N*SMP)
   if ((options & MPOptions::normalisation) == MPOptions::none)
     inv_trans = inv_trans * norms_complex_sph(degree);
 
